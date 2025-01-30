@@ -1,6 +1,7 @@
 C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\Vic.java
 C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\exceptions\ActionCompletedException.java
 C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\exceptions\EmptyContentException.java
+C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\exceptions\TaskOutOfBoundsException.java
 C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\exceptions\UnknownCommandException.java
 C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\tasks\Deadline.java
 C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\tasks\Event.java
