@@ -2,6 +2,7 @@ package main.java;
 
 import main.java.exceptions.ActionCompletedException;
 import main.java.exceptions.EmptyContentException;
+import main.java.exceptions.TaskOutOfBoundsException;
 import main.java.exceptions.UnknownCommandException;
 import main.java.tasks.Deadline;
 import main.java.tasks.Event;
@@ -101,6 +102,34 @@ public class Vic {
     }
 
     /**
+     * parse given task number as integer
+     *
+     * @param option task id provided by user
+     * @return task id or -1 for error
+     */
+    static int parseTaskId(String option) {
+        int taskID = -1;
+        try {
+            taskID = Integer.parseInt(option);
+        }
+        catch(NumberFormatException e) {
+            System.out.println(replyFormatter("No Number detected! Please try again! (⚆_⚆)"));
+            return -1;
+        }
+        taskID = taskID - 1;
+        try {
+            if (taskID < 0 || taskID > toDoList.size() - 1) {
+                throw new TaskOutOfBoundsException();
+            }
+            return taskID;
+        }
+        catch(TaskOutOfBoundsException e) {
+            System.out.println(replyFormatter(e.getMessage()));
+            return -1;
+        }
+    }
+
+    /**
      * finds the corresponding task and mark as done or undone
      *
      * @param option task id provided by user
@@ -108,20 +137,8 @@ public class Vic {
      * @return message of the action compelted
      */
     static void findTaskToCheck(String option, boolean toMarkDone) {
-        int taskID = -1;
-        try {
-            taskID = Integer.parseInt(option);
-        }
-        catch(NumberFormatException e) {
-            System.out.println(replyFormatter("No Number detected! Please try again!"));
-            return;
-        }
-        taskID = taskID - 1;
-        if (taskID < 0 || taskID > toDoList.size() - 1) {
-            System.out.println(replyFormatter("No task found! Please try again!"));
-            return;
-        }
-
+        int taskID = parseTaskId(option);
+        if (taskID == -1) { return; }
         try {
             if (toMarkDone) {
                 if (!toDoList.get(taskID).getStatus()) {
@@ -146,6 +163,30 @@ public class Vic {
 
     }
 
+    /**
+     * finds the corresponding task and delete it
+     *
+     * @param response user command to exceute
+     */
+    static void deleteListItem(String response) {
+        String[] responseLst = response.split(" ");
+        try {
+            if (responseLst.length <= 1) throw new EmptyContentException();
+        } catch (EmptyContentException e) {
+            System.out.println(replyFormatter(e.getMessage()));
+            return;
+        }
+        int taskID = parseTaskId(responseLst[1]);
+        if (taskID == -1) { return; }
+        String removeMsg = "Noted. I've removed this task:\n\t\t\t"
+                + toDoList.get(taskID).toString();
+        toDoList.remove(taskID);
+        System.out.println(replyFormatter(removeMsg
+                        + "\n\t Now you have "
+                        + toDoList.size()
+                        + " tasks in the list."
+        ));
+    }
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
 
@@ -165,6 +206,9 @@ public class Vic {
                     break;
                 case "list":
                     printToDoList();
+                    break;
+                case "delete":
+                    deleteListItem(response);
                     break;
                 case "todo":
                 case "deadline":
