@@ -1,3 +1,8 @@
+package main.java;
+
+import main.java.exceptions.ActionCompletedException;
+import main.java.exceptions.EmptyContentException;
+import main.java.exceptions.UnknownCommandException;
 import main.java.tasks.Deadline;
 import main.java.tasks.Event;
 import main.java.tasks.Task;
@@ -7,9 +12,9 @@ import java.util.Scanner;
 import java.util.ArrayList;
 
 public class Vic {
-    private static final String line = "\t ____________________________________________________________\n";
+    private static final String line = "\t ______________________________________________________________________________\n";
     private static final String name = "Vic";
-    private static final String intro = "\t Hello! I'm "
+    private static final String intro = "\n\n\t Hello! I'm "
             + name
             +"\n"
             + "\t What can I do for you?\n"
@@ -36,34 +41,51 @@ public class Vic {
         String[] responseLst = response.split(" ");
         Task newItem = null;
         String description = "";
-        switch (responseLst[0]) {
-        case "todo":
-            description = response.split("todo ")[1];
-            newItem = new ToDo(description);
-            break;
-        case "deadline":
-            description = response.split("deadline ")[1].split("/")[0];
-            String by = response.split("/by ")[1];
-            newItem = new Deadline(description, by);
-            break;
-        case "event":
-            description = response.split("event ")[1].split("/")[0];
-            String[] part2 = response.split("/");
-            String from = part2[1].split("from ")[1];
-            String to = part2[2].split("to ")[1];
-            newItem = new Event(description, from, to);
-            break;
-        default:
-            break;
+        try {
+            if (responseLst.length <= 1) throw new EmptyContentException();
+            switch (responseLst[0]) {
+            case "todo":
+                description = response.split("todo ")[1];
+                if (description.length() < 1) throw new EmptyContentException();
+
+                newItem = new ToDo(description);
+                break;
+            case "deadline":
+                description = response.split("deadline ")[1].split("/")[0];
+                if (description.length() < 1) throw new EmptyContentException();
+
+                String by = response.split("/by ").length > 1 ? response.split("/by ")[1] : "";
+                if (by.length() < 1) throw new EmptyContentException();
+
+                newItem = new Deadline(description, by);
+                break;
+            case "event":
+                description = response.split("event ")[1].split("/")[0];
+                if (description.length() < 1) throw new EmptyContentException();
+
+                String[] part2 = response.split("/");
+                String from = part2.length > 1 ? part2[1].split("from ").length > 1 ? part2[1].split("from ")[1] : "" : "";
+                if (from.length() < 1) throw new EmptyContentException();
+
+                String to = part2.length > 2 ? part2[2].split("to ").length > 1 ? part2[2].split("to ")[1] : "" : "";
+                if (to.length() < 1) throw new EmptyContentException();
+
+                newItem = new Event(description, from, to);
+                break;
+            default:
+                break;
+            }
+            toDoList.add(newItem);
+            System.out.println(replyFormatter(
+                    "Got it. I've added this task:\n"
+                    + "\t\t\t" + newItem.toString()
+                    + "\n\t Now you have "
+                    + toDoList.size()
+                    + " tasks in the list."
+            ));
+        } catch (EmptyContentException e) {
+            System.out.println(replyFormatter(e.getMessage()));
         }
-        toDoList.add(newItem);
-        System.out.println(replyFormatter(
-                "Got it. I've added this task:\n"
-                + "\t\t\t" + newItem.toString()
-                + "\n\t Now you have "
-                + toDoList.size()
-                + " tasks in the list."
-        ));
     }
 
     /**
@@ -100,24 +122,26 @@ public class Vic {
             return;
         }
 
-        if (toMarkDone) {
-            if (toDoList.get(taskID).getStatus()) {
-                System.out.println(replyFormatter("Task has already been completed:  \n\t\t\t"
-                        + toDoList.get(taskID).toString()));
+        try {
+            if (toMarkDone) {
+                if (!toDoList.get(taskID).getStatus()) {
+                    toDoList.get(taskID).markAsDone();
+                    System.out.println(replyFormatter("Nice! I've marked this task as done:\n\t\t\t"
+                            + toDoList.get(taskID).toString()));
+                } else {
+                    throw new ActionCompletedException();
+                }
             } else {
-                toDoList.get(taskID).markAsDone();
-                System.out.println(replyFormatter("Nice! I've marked this task as done: \n\t\t\t"
-                        + toDoList.get(taskID).toString()));
+                if (toDoList.get(taskID).getStatus()) {
+                    toDoList.get(taskID).markAsUndone();
+                    System.out.println(replyFormatter("OK, I've marked this task as not done yet:\n\t\t\t"
+                            + toDoList.get(taskID).toString()));
+                } else {
+                    throw new ActionCompletedException();
+                }
             }
-        } else {
-            if (!toDoList.get(taskID).getStatus()) {
-                System.out.println(replyFormatter("Task has not been done yet:  \n\t\t\t"
-                        + toDoList.get(taskID).toString()));
-            } else {
-                toDoList.get(taskID).markAsUndone();
-                System.out.println(replyFormatter("OK, I've marked this task as not done yet: \n\t\t\t"
-                        + toDoList.get(taskID).toString()));
-            }
+        } catch (ActionCompletedException e) {
+            System.out.println(replyFormatter(e.getMessage()));
         }
 
     }
@@ -130,20 +154,28 @@ public class Vic {
         String response = input.nextLine();
 
         while (!response.equals("bye")) {
-            String[] responseLst = response.split(" ");
-            switch (responseLst[0]) {
-            case "mark":
-                findTaskToCheck(responseLst[1], true);
-                break;
-            case "unmark":
-                findTaskToCheck(responseLst[1], false);
-                break;
-            case "list":
-                printToDoList();
-                break;
-            default:
-                addListItem(response);
-                break;
+            try {
+                String[] responseLst = response.split(" ");
+                switch (responseLst[0]) {
+                case "mark":
+                    findTaskToCheck(responseLst[1], true);
+                    break;
+                case "unmark":
+                    findTaskToCheck(responseLst[1], false);
+                    break;
+                case "list":
+                    printToDoList();
+                    break;
+                case "todo":
+                case "deadline":
+                case "event":
+                    addListItem(response);
+                    break;
+                default:
+                    throw new UnknownCommandException();
+                }
+            } catch (UnknownCommandException e) {
+                System.out.println(replyFormatter(e.getMessage()));
             }
             response = input.nextLine();
         }
