@@ -1,0 +1,5 @@
+C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\Vic.java
+C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\tasks\Deadline.java
+C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\tasks\Event.java
+C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\tasks\Task.java
+C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\tasks\ToDo.java
