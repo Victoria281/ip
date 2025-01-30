@@ -1,4 +1,5 @@
 C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\Vic.java
+C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\enums\Command.java
 C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\exceptions\ActionCompletedException.java
 C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\exceptions\EmptyContentException.java
 C:\Users\amand\Documents\ProjectsWorkspace\ip\src\main\java\exceptions\TaskOutOfBoundsException.java

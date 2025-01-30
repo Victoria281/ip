@@ -8,6 +8,7 @@ import main.java.tasks.Deadline;
 import main.java.tasks.Event;
 import main.java.tasks.Task;
 import main.java.tasks.ToDo;
+import main.java.enums.Command;
 
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -44,15 +45,16 @@ public class Vic {
         String description = "";
         try {
             if (responseLst.length <= 1) throw new EmptyContentException();
-            switch (responseLst[0]) {
-            case "todo":
-                description = response.split("todo ")[1];
+            Command command = Command.convertText(responseLst[0]);
+            switch (command) {
+            case TODO:
+                description = response.split(" ", 2)[1];
                 if (description.length() < 1) throw new EmptyContentException();
 
                 newItem = new ToDo(description);
                 break;
-            case "deadline":
-                description = response.split("deadline ")[1].split("/")[0];
+            case DEADLINE:
+                description = response.split(" ", 2)[1].split("/")[0];
                 if (description.length() < 1) throw new EmptyContentException();
 
                 String by = response.split("/by ").length > 1 ? response.split("/by ")[1] : "";
@@ -60,8 +62,8 @@ public class Vic {
 
                 newItem = new Deadline(description, by);
                 break;
-            case "event":
-                description = response.split("event ")[1].split("/")[0];
+            case EVENT:
+                description = response.split(" ", 2)[1].split("/")[0];
                 if (description.length() < 1) throw new EmptyContentException();
 
                 String[] part2 = response.split("/");
@@ -192,27 +194,34 @@ public class Vic {
 
         System.out.println(intro);
 
-        String response = input.nextLine();
+        String response = "";
 
-        while (!response.equals("bye")) {
+        boolean stop = false;
+        while (!stop) {
+            response = input.nextLine();
             try {
                 String[] responseLst = response.split(" ");
-                switch (responseLst[0]) {
-                case "mark":
+                Command command = Command.convertText(responseLst[0]);
+                switch (command) {
+                case BYE:
+                    System.out.println(outro);
+                    stop = true;
+                    break;
+                case MARK:
                     findTaskToCheck(responseLst[1], true);
                     break;
-                case "unmark":
+                case UNMARK:
                     findTaskToCheck(responseLst[1], false);
                     break;
-                case "list":
+                case LIST:
                     printToDoList();
                     break;
-                case "delete":
+                case DELETE:
                     deleteListItem(response);
                     break;
-                case "todo":
-                case "deadline":
-                case "event":
+                case TODO:
+                case DEADLINE:
+                case EVENT:
                     addListItem(response);
                     break;
                 default:
@@ -221,9 +230,7 @@ public class Vic {
             } catch (UnknownCommandException e) {
                 System.out.println(replyFormatter(e.getMessage()));
             }
-            response = input.nextLine();
         }
-        System.out.println(outro);
 
 
     }
