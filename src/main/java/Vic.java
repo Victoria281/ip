@@ -1,4 +1,7 @@
-import main.java.Task;
+import main.java.tasks.Deadline;
+import main.java.tasks.Event;
+import main.java.tasks.Task;
+import main.java.tasks.ToDo;
 
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -27,12 +30,40 @@ public class Vic {
     /**
      * add item to toDoList
      *
-     * @param item item to add
+     * @param response item response to verify and add
      */
-    static void addToDoItem(String item) {
-        Task newItem = new Task(item);
+    static void addListItem(String response) {
+        String[] responseLst = response.split(" ");
+        Task newItem = null;
+        String description = "";
+        switch (responseLst[0]) {
+        case "todo":
+            description = response.split("todo ")[1];
+            newItem = new ToDo(description);
+            break;
+        case "deadline":
+            description = response.split("deadline ")[1].split("/")[0];
+            String by = response.split("/by ")[1];
+            newItem = new Deadline(description, by);
+            break;
+        case "event":
+            description = response.split("event ")[1].split("/")[0];
+            String[] part2 = response.split("/");
+            String from = part2[1].split("from ")[1];
+            String to = part2[2].split("to ")[1];
+            newItem = new Event(description, from, to);
+            break;
+        default:
+            break;
+        }
         toDoList.add(newItem);
-        System.out.println(replyFormatter("added: " + item));
+        System.out.println(replyFormatter(
+                "Got it. I've added this task:\n"
+                + "\t\t\t" + newItem.toString()
+                + "\n\t Now you have "
+                + toDoList.size()
+                + " tasks in the list."
+        ));
     }
 
     /**
@@ -40,8 +71,9 @@ public class Vic {
      */
     static void printToDoList() {
         System.out.println(line);
+        System.out.println("\tHere are the tasks in your list:\n");
         for (int i = 0; i < toDoList.size(); i++) {
-            System.out.println("\t " + (i + 1) + ". " + toDoList.get(i).getTaskDescription());
+            System.out.println("\t " + (i + 1) + ". " + toDoList.get(i).toString());
         }
         System.out.println(line);
     }
@@ -71,20 +103,20 @@ public class Vic {
         if (toMarkDone) {
             if (toDoList.get(taskID).getStatus()) {
                 System.out.println(replyFormatter("Task has already been completed:  \n\t\t\t"
-                        + toDoList.get(taskID).getTaskDescription()));
+                        + toDoList.get(taskID).toString()));
             } else {
                 toDoList.get(taskID).markAsDone();
                 System.out.println(replyFormatter("Nice! I've marked this task as done: \n\t\t\t"
-                        + toDoList.get(taskID).getTaskDescription()));
+                        + toDoList.get(taskID).toString()));
             }
         } else {
             if (!toDoList.get(taskID).getStatus()) {
                 System.out.println(replyFormatter("Task has not been done yet:  \n\t\t\t"
-                        + toDoList.get(taskID).getTaskDescription()));
+                        + toDoList.get(taskID).toString()));
             } else {
                 toDoList.get(taskID).markAsUndone();
                 System.out.println(replyFormatter("OK, I've marked this task as not done yet: \n\t\t\t"
-                        + toDoList.get(taskID).getTaskDescription()));
+                        + toDoList.get(taskID).toString()));
             }
         }
 
@@ -100,18 +132,18 @@ public class Vic {
         while (!response.equals("bye")) {
             String[] responseLst = response.split(" ");
             switch (responseLst[0]) {
-                case "mark":
-                    findTaskToCheck(responseLst[1], true);
-                    break;
-                case "unmark":
-                    findTaskToCheck(responseLst[1], false);
-                    break;
-                case "list":
-                    printToDoList();
-                    break;
-                default:
-                    addToDoItem(response);
-                    break;
+            case "mark":
+                findTaskToCheck(responseLst[1], true);
+                break;
+            case "unmark":
+                findTaskToCheck(responseLst[1], false);
+                break;
+            case "list":
+                printToDoList();
+                break;
+            default:
+                addListItem(response);
+                break;
             }
             response = input.nextLine();
         }

@@ -1,4 +1,4 @@
-package main.java;
+package main.java.tasks;
 
 public class Task {
     protected String description;
@@ -14,7 +14,7 @@ public class Task {
      *
      * @return description of task
      */
-    public String getTaskDescription() {
+    public String toString() {
         return ("[" + getStatusIcon() + "] " + description);
     }
 
