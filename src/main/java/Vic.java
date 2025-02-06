@@ -14,9 +14,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.FileReader;
 import java.io.BufferedReader;
+import java.time.Month;
+import java.time.Year;
 import java.util.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class Vic {
     private static final String line = "\t ______________________________________________________________________________\n";
@@ -30,6 +36,9 @@ public class Vic {
     private static final ArrayList<Task> toDoList = new ArrayList<Task>();
     private static final String fileName = "/vic.txt";
     private static final String folderPath = "./data";
+    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
+    private static final LocalDateTime DEFAULT_DATE = LocalDateTime.of(Year.now().getValue(), Month.JANUARY, 1, 23, 59);
+
 
     /**
      * Returns reply message
@@ -67,20 +76,27 @@ public class Vic {
                 String by = response.split("/by ").length > 1 ? response.split("/by ")[1] : "";
                 if (by.length() < 1) throw new EmptyContentException();
 
-                newItem = new Deadline(description, by);
+                LocalDateTime byDate = parseDateTime(by, dateTimeFormatter);
+                newItem = new Deadline(description, byDate);
                 break;
             case EVENT:
                 description = response.split(" ", 2)[1].split("/")[0];
                 if (description.length() < 1) throw new EmptyContentException();
 
-                String[] part2 = response.split("/");
-                String from = part2.length > 1 ? part2[1].split("from ").length > 1 ? part2[1].split("from ")[1] : "" : "";
-                if (from.length() < 1) throw new EmptyContentException();
+                String[] part2 = response.split("/from", 2);
+                if (part2.length < 2) throw new EmptyContentException();
 
-                String to = part2.length > 2 ? part2[2].split("to ").length > 1 ? part2[2].split("to ")[1] : "" : "";
-                if (to.length() < 1) throw new EmptyContentException();
+                String[] fromSplit = part2[1].split("/to", 2);
+                String from = fromSplit[0].trim();
+                if (from.isEmpty()) throw new EmptyContentException();
 
-                newItem = new Event(description, from, to);
+                String to = fromSplit.length > 1 ? fromSplit[1].trim() : "";
+                if (to.isEmpty()) throw new EmptyContentException();
+
+                LocalDateTime fromDate = parseDateTime(from, dateTimeFormatter);
+                LocalDateTime toDate = parseDateTime(to, dateTimeFormatter);
+
+                newItem = new Event(description, fromDate, toDate);
                 break;
             default:
                 break;
@@ -96,7 +112,20 @@ public class Vic {
             ));
         } catch (EmptyContentException e) {
             System.out.println(replyFormatter(e.getMessage()));
+        } catch (DateTimeParseException e) {
+            System.out.println(replyFormatter("Date given is in wrong format, Please try again! ಥ‿ಥ"));
         }
+    }
+
+    /**
+     * formats the provided string as a date time object
+     *
+     * @param dateTimeStr date string
+     * @param formatter format type
+     * @return date object according to format type
+     */
+    static LocalDateTime parseDateTime(String dateTimeStr, DateTimeFormatter formatter) {
+        return LocalDateTime.parse(dateTimeStr, formatter);
     }
 
     /**
@@ -259,13 +288,13 @@ public class Vic {
                         break;
                     case D:
                         String deadlineDescription = contents.length > 2 ? contents[2] : "";
-                        String by = contents.length > 3 ? contents[3] : "";
+                        LocalDateTime by = contents.length > 3 ? LocalDateTime.parse(contents[3], dateTimeFormatter) : DEFAULT_DATE;
                         newItem = new Deadline(deadlineDescription, by);
                         break;
                     case E:
                         String eventDescription = contents.length > 2 ? contents[2] : "";
-                        String from = contents.length > 3 ? contents[3] : "";
-                        String to = contents.length > 4 ? contents[4] : "";
+                        LocalDateTime from = contents.length > 3 ? LocalDateTime.parse(contents[3], dateTimeFormatter) : DEFAULT_DATE;
+                        LocalDateTime to = contents.length > 4 ? LocalDateTime.parse(contents[4], dateTimeFormatter) : DEFAULT_DATE;
                         newItem = new Event(eventDescription, from, to);
                         break;
                     default:
@@ -284,6 +313,8 @@ public class Vic {
             fixErrorLines(errorMap);
         } catch (IOException e) {
             System.out.println("Error retrieving historical data! Please try again! (-̀╯⌓╰-́)");
+        } catch (DateTimeParseException e) {
+            System.out.println("Error parsing date in historical data! Please try again! (-̀╯⌓╰-́)");
         }
     }
 
@@ -319,6 +350,7 @@ public class Vic {
      */
     static String checkOrFixTaskFormat(String line) {
         String[] contents = line.split(" \\| ");
+        boolean hasChanged = false;
         if (contents.length < 1) return "delete";
 
         FileCodes command;
@@ -349,9 +381,28 @@ public class Vic {
         List<String> fixedContents = new ArrayList<>(Arrays.asList(contents));
         while (fixedContents.size() < requiredLength) {
             fixedContents.add("");
+            hasChanged = true;
         }
 
-        return fixedContents.size() == contents.length ? "-1" : String.join(" | ", fixedContents);
+        if ((command == FileCodes.D || command == FileCodes.E) && !fixedContents.get(3).isEmpty()) {
+            try {
+                LocalDateTime.parse(fixedContents.get(3), dateTimeFormatter);
+            } catch (DateTimeParseException e) {
+                fixedContents.set(3, DEFAULT_DATE.format(dateTimeFormatter));
+            }
+            hasChanged = true;
+        }
+
+        if (command == FileCodes.E && !fixedContents.get(4).isEmpty()) {
+            try {
+                LocalDateTime.parse(fixedContents.get(4), dateTimeFormatter);
+            } catch (DateTimeParseException e) {
+                fixedContents.set(4, DEFAULT_DATE.format(dateTimeFormatter));
+            }
+            hasChanged = true;
+        }
+
+        return !hasChanged ? "-1" : String.join(" | ", fixedContents);
     }
 
     /**
@@ -390,7 +441,6 @@ public class Vic {
             System.out.println("Error saving task to file! (-̀╯⌓╰-́)");
         }
     }
-
 
     /**
      * Checks if the task exists at line (index) of the file
