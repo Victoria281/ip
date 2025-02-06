@@ -14,9 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.FileReader;
 import java.io.BufferedReader;
-import java.util.Scanner;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -147,7 +145,7 @@ public class Vic {
      *
      * @param option task id provided by user
      * @param toMarkDone boolean action to mark as done or undone
-     * @return message of the action compelted
+     * @return message of the action completed
      */
     static void findTaskToCheck(String option, boolean toMarkDone) {
         int taskID = parseTaskId(option);
@@ -207,6 +205,8 @@ public class Vic {
 
     /**
      * Checks if a file for storage exists
+     *
+     * @return true if file exists and false otherwise
      */
     static boolean checkFileExists() {
         try {
@@ -236,9 +236,19 @@ public class Vic {
             FileReader in = new FileReader(folderPath+fileName);
             BufferedReader br = new BufferedReader(in);
 
+            Map<String, String> errorMap = new HashMap<>();
             toDoList.clear();
             String line = br.readLine();
+            int lineNumber = 0;
             while (line != null) {
+                String checkedLine = checkOrFixTaskFormat(line);
+                if (checkedLine.equals("delete")) {
+                    errorMap.put("delete", lineNumber+"");
+                } else if (!checkedLine.equals("-1")) {
+                    line = checkedLine;
+                    errorMap.put(lineNumber+"", checkedLine);
+                }
+
                 Task newItem = null;
                 String[] contents = line.split(" \\| ");
                 FileCodes command = FileCodes.convertText(contents[0]);
@@ -266,17 +276,88 @@ public class Vic {
                 }
                 toDoList.add(newItem);
                 line = br.readLine();
+                lineNumber++;
             }
             br.close();
             in.close();
+
+            fixErrorLines(errorMap);
         } catch (IOException e) {
             System.out.println("Error retrieving historical data! Please try again! (-̀╯⌓╰-́)");
         }
     }
 
+    /**
+     * Checks the given line and fixes line format if necessary
+     *
+     * @param errorMap stores lines with error or wrong format to update
+     */
+    static void fixErrorLines(Map<String, String> errorMap) {
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(folderPath + fileName));
+            for (Map.Entry<String, String> entry : errorMap.entrySet()) {
+                if (entry.getKey().equals("delete")) {
+                    lines.remove(Integer.parseInt(entry.getValue()));
+                } else {
+                    lines.set(Integer.parseInt(entry.getKey()), entry.getValue());
+                }
+            }
+            Files.write(Paths.get(folderPath + fileName), lines);
+
+        } catch (IOException e) {
+            System.out.println("Error updating file with corrected lines!");
+        }
+    }
+
+    /**
+     * Checks the given line and fixes line format if necessary
+     *
+     * @param line provides line read from file to check against
+     * @return "delete" if line is not readable,
+     *          line number and fixed line if line is corrupted,
+     *          "-1" if line has no issues
+     */
+    static String checkOrFixTaskFormat(String line) {
+        String[] contents = line.split(" \\| ");
+        if (contents.length < 1) return "delete";
+
+        FileCodes command;
+        try {
+            command = FileCodes.convertText(contents[0]);
+            if (command.equals(FileCodes.N)) {
+                return "delete";
+            }
+        } catch (Exception e) {
+            return "delete";
+        }
+
+        int requiredLength;
+        switch (command) {
+            case T:
+                requiredLength = 3;
+                break;
+            case D:
+                requiredLength = 4;
+                break;
+            case E:
+                requiredLength = 5;
+                break;
+            default:
+                return "delete";
+        }
+
+        List<String> fixedContents = new ArrayList<>(Arrays.asList(contents));
+        while (fixedContents.size() < requiredLength) {
+            fixedContents.add("");
+        }
+
+        return fixedContents.size() == contents.length ? "-1" : String.join(" | ", fixedContents);
+    }
 
     /**
      * Save new task to file
+     *
+     * @param task task to save to file
      */
     static void saveNewTaskToFile(Task task) {
         try {
@@ -312,9 +393,11 @@ public class Vic {
 
 
     /**
-     * Checks if the taskexists at line (index) of the file
+     * Checks if the task exists at line (index) of the file
      *
-     * returns boolean if file exists
+     * @param index index of task to check against file
+     * @param task task to check against file
+     * @return boolean if file exists
      */
     static boolean taskExistsAtIndex(int index, Task task) {
         try {
@@ -335,6 +418,9 @@ public class Vic {
 
     /**
      * Deletes task from file
+     *
+     * @param index index of task to delete
+     * @param task task to delete
      */
     static void deleteTaskAtIndex(int index, Task task) {
         try {
@@ -351,6 +437,9 @@ public class Vic {
 
     /**
      * Save edited content of file
+     * 
+     * @param index index of task to edit
+     * @param task task to edit
      */
     static void saveEditedTaskAtIndex(int index, Task task) {
         try {
