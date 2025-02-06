@@ -1,4 +1,4 @@
-package main.java.tasks;
+package main.java.Vic.tasks;
 
 public class ToDo extends Task {
 

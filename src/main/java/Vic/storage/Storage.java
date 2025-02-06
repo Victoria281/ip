@@ -1,12 +1,13 @@
-package main.java;
-import main.java.Ui;
-import main.java.enums.FileCodes;
-import main.java.exceptions.*;
-import main.java.tasks.Deadline;
-import main.java.tasks.Event;
-import main.java.tasks.Task;
-import main.java.tasks.ToDo;
-import main.java.enums.Command;
+package main.java.Vic.storage;
+import main.java.Vic.parser.Parser;
+import main.java.Vic.tasks.TaskList;
+import main.java.Vic.ui.Ui;
+import main.java.Vic.enums.FileCodes;
+import main.java.Vic.exceptions.*;
+import main.java.Vic.tasks.Deadline;
+import main.java.Vic.tasks.Event;
+import main.java.Vic.tasks.Task;
+import main.java.Vic.tasks.ToDo;
 
 import java.io.FileWriter;
 import java.io.BufferedWriter;
@@ -14,14 +15,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.FileReader;
 import java.io.BufferedReader;
-import java.time.Month;
-import java.time.Year;
 import java.util.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 public class Storage {
@@ -41,7 +39,7 @@ public class Storage {
      *
      * @return the TaskList created
      */
-    static TaskList load() {
+    public static TaskList load() {
         TaskList tasks = new TaskList();
         loadTasksFromFile(tasks);
         return tasks;
@@ -52,7 +50,7 @@ public class Storage {
      *
      * @return the TaskList filled up
      */
-    static TaskList loadTasksFromFile(TaskList tasks) {
+    public static TaskList loadTasksFromFile(TaskList tasks) {
         try {
             FileReader in = new FileReader(folderPath+fileName);
             BufferedReader br = new BufferedReader(in);
@@ -117,7 +115,7 @@ public class Storage {
      *
      * @return true if file exists and false otherwise
      */
-    static boolean checkFileExists() {
+    public static boolean checkFileExists() {
         try {
             File folder = new File(folderPath);
             if (!folder.exists()) {
@@ -229,7 +227,7 @@ public class Storage {
      *
      * @param task task to save to file
      */
-    static void saveNewTaskToFile(Task task) {
+    public static void saveNewTaskToFile(Task task) {
         try {
             FileWriter out = new FileWriter(folderPath + fileName, true);
             BufferedWriter bw = new BufferedWriter(out);
@@ -268,7 +266,7 @@ public class Storage {
      * @param task task to check against file
      * @return boolean if file exists
      */
-    static boolean taskExistsAtIndex(int index, Task task) {
+    public static boolean taskExistsAtIndex(int index, Task task) {
         try {
             List<String> lines = Files.readAllLines(Paths.get(folderPath + fileName));
             if (index >= 0 && index < lines.size()) {
@@ -291,7 +289,7 @@ public class Storage {
      * @param index index of task to delete
      * @param task task to delete
      */
-    static void deleteTaskAtIndex(int index, Task task) {
+    public static void deleteTaskAtIndex(int index, Task task) {
         try {
             if (!taskExistsAtIndex(index, task)) throw new FileContentCorruptedException();
             List<String> lines = Files.readAllLines(Paths.get(folderPath + fileName));
@@ -310,7 +308,7 @@ public class Storage {
      * @param index index of task to edit
      * @param task task to edit
      */
-    static void saveEditedTaskAtIndex(int index, Task task) {
+    public static void saveEditedTaskAtIndex(int index, Task task) {
         try {
             if (!taskExistsAtIndex(index, task)) throw new FileContentCorruptedException();
             List<String> lines = Files.readAllLines(Paths.get(folderPath + fileName));

@@ -1,4 +1,4 @@
-package main.java.enums;
+package main.java.Vic.enums;
 
 public enum Command {
     BYE("bye"),

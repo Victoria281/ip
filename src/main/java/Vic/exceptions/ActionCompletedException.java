@@ -1,4 +1,4 @@
-package main.java.exceptions;
+package main.java.Vic.exceptions;
 
 public class ActionCompletedException extends Exception {
     public ActionCompletedException() {

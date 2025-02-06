@@ -1,7 +1,11 @@
-package main.java;
+package main.java.Vic;
 
-import main.java.exceptions.VicException;
-import main.java.enums.Command;
+import main.java.Vic.actions.BotActions;
+import main.java.Vic.storage.Storage;
+import main.java.Vic.ui.Ui;
+import main.java.Vic.tasks.TaskList;
+import main.java.Vic.exceptions.VicException;
+import main.java.Vic.enums.Command;
 
 /**
  * The main class for the Vic chatbot.

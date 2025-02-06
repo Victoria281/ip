@@ -1,4 +1,4 @@
-package main.java.exceptions;
+package main.java.Vic.exceptions;
 
 public class FileContentCorruptedException extends Exception {
     public FileContentCorruptedException() {
