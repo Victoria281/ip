@@ -1,13 +1,16 @@
-package main.java;
-import main.java.enums.Command;
-import main.java.exceptions.*;
-import main.java.tasks.Deadline;
-import main.java.tasks.Event;
-import main.java.tasks.Task;
-import main.java.tasks.ToDo;
+package main.java.Vic.actions;
+import main.java.Vic.parser.Parser;
+import main.java.Vic.storage.Storage;
+import main.java.Vic.tasks.TaskList;
+import main.java.Vic.ui.Ui;
+import main.java.Vic.enums.Command;
+import main.java.Vic.exceptions.*;
+import main.java.Vic.tasks.Deadline;
+import main.java.Vic.tasks.Event;
+import main.java.Vic.tasks.Task;
+import main.java.Vic.tasks.ToDo;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 public class BotActions {
 
@@ -16,7 +19,7 @@ public class BotActions {
      *
      * @param action user requested action from the bot
      */
-    static void execute(Storage storage, TaskList taskList, Command command, String action) {
+    public static void execute(Storage storage, TaskList taskList, Command command, String action) {
         try {
             String[] responseLst = action.split(" ");
             switch (command) {
@@ -51,7 +54,7 @@ public class BotActions {
      *
      * @param command item response to verify and add
      */
-    static void addListItem(Command command, String action, TaskList taskList, Storage storage) {
+    public static void addListItem(Command command, String action, TaskList taskList, Storage storage) {
         String[] responseLst = action.split(" ");
         Task newItem = null;
         String description = "";
@@ -109,7 +112,7 @@ public class BotActions {
     /**
      * prints the toDoList
      */
-    static void printToDoList(Storage storage, TaskList tasks) {
+    public static void printToDoList(Storage storage, TaskList tasks) {
         storage.loadTasksFromFile(tasks);
         Ui.showTaskList(tasks);
     }
@@ -122,7 +125,7 @@ public class BotActions {
      * @param toMarkDone boolean action to mark as done or undone
      * @return message of the action completed
      */
-    static void findTaskToCheck(Command command, String option, TaskList taskList, Storage storage, boolean toMarkDone) {
+    public static void findTaskToCheck(Command command, String option, TaskList taskList, Storage storage, boolean toMarkDone) {
         int taskID = Parser.parseTaskId(option, taskList);
         if (taskID == -1) { return; }
         try {
@@ -154,7 +157,7 @@ public class BotActions {
      *
      * @param action user command to exceute
      */
-    static void deleteListItem(String action, TaskList taskList, Storage storage) {
+    public static void deleteListItem(String action, TaskList taskList, Storage storage) {
         String[] responseLst = action.split(" ");
         try {
             if (responseLst.length <= 1) throw new EmptyContentException();

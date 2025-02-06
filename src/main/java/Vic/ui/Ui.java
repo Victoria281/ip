@@ -1,13 +1,14 @@
-package main.java;
+package main.java.Vic.ui;
 
-import main.java.tasks.Task;
+import main.java.Vic.tasks.TaskList;
+import main.java.Vic.tasks.Task;
 
 import java.util.*;
 
 /**
  * UI class formats user interaction and messages.
  */
-class Ui {
+public class Ui {
     private Scanner scanner;
     private static final String line = "\t ______________________________________________________________________________\n";
     private static final String name = "Vic";
