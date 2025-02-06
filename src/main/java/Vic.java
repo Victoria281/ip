@@ -1,5 +1,6 @@
 package main.java;
 
+import main.java.enums.FileCodes;
 import main.java.exceptions.ActionCompletedException;
 import main.java.exceptions.EmptyContentException;
 import main.java.exceptions.TaskOutOfBoundsException;
@@ -10,6 +11,12 @@ import main.java.tasks.Task;
 import main.java.tasks.ToDo;
 import main.java.enums.Command;
 
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.FileReader;
+import java.io.BufferedReader;
 import java.util.Scanner;
 import java.util.ArrayList;
 
@@ -23,6 +30,8 @@ public class Vic {
             + line;
     private static final String outro = line + "\t Bye. Hope to see you again soon!\n" + line;
     private static final ArrayList<Task> toDoList = new ArrayList<Task>();
+    private static final String fileName = "/vic.txt";
+    private static final String folderPath = "./data";
 
     /**
      * Returns reply message
@@ -189,8 +198,86 @@ public class Vic {
                         + " tasks in the list."
         ));
     }
+
+
+    /**
+     * Checks if a file for storage exists
+     */
+    static boolean checkFileExists() {
+        try {
+            File folder = new File(folderPath);
+            if (!folder.exists()) {
+                folder.mkdirs();
+                File file = new File(folderPath + fileName);
+                boolean createdFile = file.createNewFile();
+                if (createdFile) {
+                    System.out.println("Unable to find data. A new storage is created at: " + folderPath + fileName);
+                } else {
+                    System.out.println("Failed to create the new storage area. Please try again!");
+                    return false;
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error retrieving historical data! Please try again! (-̀╯⌓╰-́)");
+        }
+        return true;
+    }
+
+    /**
+     * Load tasks from a file at start
+     */
+    static void loadTasksFromFile() {
+        try {
+            FileReader in = new FileReader(folderPath+fileName);
+            BufferedReader br = new BufferedReader(in);
+
+            String line = br.readLine();
+            while (line != null) {
+                Task newItem = null;
+                String[] contents = line.split(" \\| ");
+                FileCodes command = FileCodes.convertText(contents[0]);
+
+                switch (command) {
+                    case T:
+                        String description = contents.length > 2 ? contents[2] : "";
+                        newItem = new ToDo(description);
+                        break;
+                    case D:
+                        String deadlineDescription = contents.length > 2 ? contents[2] : "";
+                        String by = contents.length > 3 ? contents[3] : "";
+                        newItem = new Deadline(deadlineDescription, by);
+                        break;
+                    case E:
+                        String eventDescription = contents.length > 2 ? contents[2] : "";
+                        String from = contents.length > 3 ? contents[3] : "";
+                        String to = contents.length > 4 ? contents[4] : "";
+                        newItem = new Event(eventDescription, from, to);
+                        break;
+                    default:
+                        break;
+                }
+                System.out.println(newItem.toString());
+                toDoList.add(newItem);
+                line = br.readLine();
+            }
+            br.close();
+            in.close();
+        } catch (IOException e) {
+            System.out.println("Error retrieving historical data! Please try again! (-̀╯⌓╰-́)");
+        }
+    }
+
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
+
+        System.out.println("\n\n\n\tRetrieving records...");
+        if (!checkFileExists()) {
+            System.out.println(outro);
+            return;
+        }
+        loadTasksFromFile();
+        System.out.println("\n\n\n\tRetrieval done");
+
 
         System.out.println(intro);
 
