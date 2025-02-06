@@ -1,10 +1,7 @@
 package main.java;
 
 import main.java.enums.FileCodes;
-import main.java.exceptions.ActionCompletedException;
-import main.java.exceptions.EmptyContentException;
-import main.java.exceptions.TaskOutOfBoundsException;
-import main.java.exceptions.UnknownCommandException;
+import main.java.exceptions.*;
 import main.java.tasks.Deadline;
 import main.java.tasks.Event;
 import main.java.tasks.Task;
@@ -19,6 +16,9 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Vic {
     private static final String line = "\t ______________________________________________________________________________\n";
@@ -88,6 +88,7 @@ public class Vic {
                 break;
             }
             toDoList.add(newItem);
+            saveNewTaskToFile(newItem);
             System.out.println(replyFormatter(
                     "Got it. I've added this task:\n"
                     + "\t\t\t" + newItem.toString()
@@ -104,6 +105,7 @@ public class Vic {
      * prints the toDoList
      */
     static void printToDoList() {
+        loadTasksFromFile();
         System.out.println(line);
         System.out.println("\tHere are the tasks in your list:\n");
         for (int i = 0; i < toDoList.size(); i++) {
@@ -154,6 +156,7 @@ public class Vic {
             if (toMarkDone) {
                 if (!toDoList.get(taskID).getStatus()) {
                     toDoList.get(taskID).markAsDone();
+                    saveEditedTaskAtIndex(taskID, toDoList.get(taskID));
                     System.out.println(replyFormatter("Nice! I've marked this task as done:\n\t\t\t"
                             + toDoList.get(taskID).toString()));
                 } else {
@@ -162,6 +165,7 @@ public class Vic {
             } else {
                 if (toDoList.get(taskID).getStatus()) {
                     toDoList.get(taskID).markAsUndone();
+                    saveEditedTaskAtIndex(taskID, toDoList.get(taskID));
                     System.out.println(replyFormatter("OK, I've marked this task as not done yet:\n\t\t\t"
                             + toDoList.get(taskID).toString()));
                 } else {
@@ -192,6 +196,7 @@ public class Vic {
         String removeMsg = "Noted. I've removed this task:\n\t\t\t"
                 + toDoList.get(taskID).toString();
         toDoList.remove(taskID);
+        deleteTaskAtIndex(taskID, toDoList.get(taskID));
         System.out.println(replyFormatter(removeMsg
                         + "\n\t Now you have "
                         + toDoList.size()
@@ -231,12 +236,12 @@ public class Vic {
             FileReader in = new FileReader(folderPath+fileName);
             BufferedReader br = new BufferedReader(in);
 
+            toDoList.clear();
             String line = br.readLine();
             while (line != null) {
                 Task newItem = null;
                 String[] contents = line.split(" \\| ");
                 FileCodes command = FileCodes.convertText(contents[0]);
-
                 switch (command) {
                     case T:
                         String description = contents.length > 2 ? contents[2] : "";
@@ -256,7 +261,9 @@ public class Vic {
                     default:
                         break;
                 }
-                System.out.println(newItem.toString());
+                if (contents.length > 1 && contents[1].equals("1")) {
+                    newItem.markAsDone();
+                }
                 toDoList.add(newItem);
                 line = br.readLine();
             }
@@ -264,6 +271,114 @@ public class Vic {
             in.close();
         } catch (IOException e) {
             System.out.println("Error retrieving historical data! Please try again! (-̀╯⌓╰-́)");
+        }
+    }
+
+
+    /**
+     * Save new task to file
+     */
+    static void saveNewTaskToFile(Task task) {
+        try {
+            FileWriter out = new FileWriter(folderPath + fileName, true);
+            BufferedWriter bw = new BufferedWriter(out);
+
+            FileCodes taskType;
+            String isDone = "0";
+            String line = "";
+
+            if (task instanceof ToDo) {
+                taskType = FileCodes.T;
+                line = String.format("%s | %s | %s", taskType, isDone, task.getDescription());
+            } else if (task instanceof Deadline) {
+                taskType = FileCodes.D;
+                Deadline deadline = (Deadline) task;
+                line = String.format("%s | %s | %s | %s", taskType, isDone, deadline.getDescription(), deadline.getBy());
+            } else if (task instanceof Event) {
+                taskType = FileCodes.E;
+                Event event = (Event) task;
+                line = String.format("%s | %s | %s | %s | %s", taskType, isDone, event.getDescription(), event.getFrom(), event.getTo());
+            }
+
+            bw.write(line);
+            bw.newLine();
+
+            bw.close();
+            out.close();
+        } catch (IOException e) {
+            System.out.println("Error saving task to file! (-̀╯⌓╰-́)");
+        }
+    }
+
+
+    /**
+     * Checks if the taskexists at line (index) of the file
+     *
+     * returns boolean if file exists
+     */
+    static boolean taskExistsAtIndex(int index, Task task) {
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(folderPath + fileName));
+            if (index >= 0 && index < lines.size()) {
+                String[] contents = line.split(" \\| ");
+                String description = contents.length > 2 ? contents[2] : "";
+                if (description.equals(task.getDescription())) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (IOException e) {
+            System.out.println("Error reading tasks from file!");
+            return false;
+        }
+    }
+
+    /**
+     * Deletes task from file
+     */
+    static void deleteTaskAtIndex(int index, Task task) {
+        try {
+            if (taskExistsAtIndex(index, task)) throw new FileContentCorruptedException();
+            List<String> lines = Files.readAllLines(Paths.get(folderPath + fileName));
+            lines.remove(index);
+            Files.write(Paths.get(folderPath + fileName), lines);
+        } catch (FileContentCorruptedException e) {
+            System.out.println(replyFormatter(e.getMessage()));
+        } catch (IOException e) {
+            System.out.println("Error deleting task from file!");
+        }
+    }
+
+    /**
+     * Save edited content of file
+     */
+    static void saveEditedTaskAtIndex(int index, Task task) {
+        try {
+            if (taskExistsAtIndex(index, task)) throw new FileContentCorruptedException();
+            List<String> lines = Files.readAllLines(Paths.get(folderPath + fileName));
+
+            String isDone = task.getStatus() ? "1" : "0";
+            String line = "";
+            FileCodes taskType;
+
+            if (task instanceof ToDo) {
+                taskType = FileCodes.T;
+                line = String.format("%s | %s | %s", taskType, isDone, task.getDescription());
+            } else if (task instanceof Deadline) {
+                taskType = FileCodes.D;
+                Deadline deadline = (Deadline) task;
+                line = String.format("%s | %s | %s | %s", taskType, isDone, deadline.getDescription(), deadline.getBy());
+            } else if (task instanceof Event) {
+                taskType = FileCodes.E;
+                Event event = (Event) task;
+                line = String.format("%s | %s | %s | %s | %s", taskType, isDone, event.getDescription(), event.getFrom(), event.getTo());
+            }
+            lines.set(index, line);
+            Files.write(Paths.get(folderPath + fileName), lines);
+        } catch (FileContentCorruptedException e) {
+            System.out.println(replyFormatter(e.getMessage()));
+        } catch (IOException e) {
+            System.out.println("Error editing task in file!");
         }
     }
 

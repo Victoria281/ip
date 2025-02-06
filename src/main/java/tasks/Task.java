@@ -10,12 +10,21 @@ public class Task {
     }
 
     /**
-     * Find task description
+     * Format task description as chat query
      *
-     * @return description of task
+     * @return formatted description of task
      */
     public String toString() {
         return ("[" + getStatusIcon() + "] " + description);
+    }
+
+    /**
+     * Get pure task description
+     *
+     * @return description of task
+     */
+    public String getDescription() {
+        return description;
     }
 
     /**

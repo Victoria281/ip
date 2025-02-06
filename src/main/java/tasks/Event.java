@@ -16,4 +16,22 @@ public class Event extends Task {
         return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
     }
 
+    /**
+     * Get task from date
+     *
+     * @return task from date
+     */
+    public String getFrom() {
+        return from;
+    }
+
+    /**
+     * Get task to date
+     *
+     * @return task to date
+     */
+    public String getTo() {
+        return to;
+    }
+
 }
