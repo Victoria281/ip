@@ -1,65 +1,79 @@
-package main.java.Vic;
+package Vic;
 
-import main.java.Vic.actions.BotActions;
-import main.java.Vic.storage.Storage;
-import main.java.Vic.ui.Ui;
-import main.java.Vic.tasks.TaskList;
-import main.java.Vic.exceptions.VicException;
-import main.java.Vic.enums.Command;
+import Vic.actions.Action;
+import Vic.exceptions.VicException;
+import Vic.exceptions.UnknownCommandException;
+import Vic.parser.Parser;
+import Vic.storage.Storage;
+import Vic.ui.Ui;
+import Vic.tasks.TaskList;
+import Vic.enums.Command;
 
 /**
  * The main class for the Vic chatbot.
  */
 public class Vic {
-    private static final String fileName = "/vic.txt";
-    private static final String folderPath = "./data";
+    private static final String FILE_NAME = "/vic.txt";
+    private static final String FOLDER_PATH = "./data";
 
     private Storage storage;
     private TaskList taskList;
     private Ui ui;
 
     /**
-     * Constructs a Vic instance, initializing UI, storage, and task management.
+     * Constructs a Vic instance for task management.
      *
      * @param fileName   The name of the file where tasks are stored
      * @param folderPath The path to the folder where the file is stored
      */
     public Vic(String fileName, String folderPath) {
-        ui = new Ui();
-        storage = new Storage(fileName, folderPath);
+        this.ui = new Ui();
+        this.storage = new Storage(fileName, folderPath);
+        initializeTaskList();
+    }
+
+    /**
+     * Initializes the task list by loading tasks from the storage.
+     * If the file does not exist, it will handle the exception gracefully.
+     */
+    private void initializeTaskList() {
         try {
             if (!storage.checkFileExists()) {
                 throw new VicException();
             }
-            taskList = storage.load();
+            this.taskList = storage.load();
         } catch (VicException e) {
-            Ui.out(e.getMessage());
+            ui.out(e.getMessage());
         }
-
     }
 
     /**
-     * Runs the chatbot application.
+     * Starts and runs the Vic chatbot application.
+     * It continuously accepts user input and performs actions.
      */
     public void run() {
         ui.showIntro();
         boolean isExit = false;
+
         while (!isExit) {
             String action = ui.readCommand();
             String[] responseLst = action.split(" ");
             Command command = Command.convertText(responseLst[0]);
-            BotActions.execute(storage, taskList, command, action);
-            isExit = command.equals(Command.BYE);
+
+            try {
+                Action actionObject = Parser.parseCommand(command, action, storage, taskList);
+                isExit = actionObject.execute();
+            } catch (UnknownCommandException e) {
+                ui.out(e.getMessage());
+            }
         }
         ui.showOutro();
     }
 
     /**
      * The entry point of the application.
-     *
-     * @param args Command-line arguments
      */
     public static void main(String[] args) {
-        new Vic(fileName, folderPath).run();
+        new Vic(FILE_NAME, FOLDER_PATH).run();
     }
 }

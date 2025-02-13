@@ -1,5 +1,8 @@
-package main.java.Vic.enums;
+package Vic.enums;
 
+/**
+ * This enum represents different commands that can be issued by the user.
+ */
 public enum Command {
     BYE("bye"),
     TODO("todo"),
@@ -17,10 +20,11 @@ public enum Command {
         this.commandText = commandText;
     }
 
-    public String getCommandText() {
-        return this.commandText;
-    }
-
+    /**
+     * Retrieves the text representation of the command.
+     *
+     * @return the command text
+     */
     public static Command convertText(String text) {
         for (Command c : Command.values()) {
             if (c.commandText.equalsIgnoreCase(text)) {

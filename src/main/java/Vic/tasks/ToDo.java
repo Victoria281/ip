@@ -1,19 +1,21 @@
-package main.java.Vic.tasks;
+package Vic.tasks;
 
+/**
+ * Represents a To-Do task.
+ */
 public class ToDo extends Task {
-
-    protected String from;
-    protected String to;
 
     public ToDo(String description) {
         super(description);
-        this.from = from;
-        this.to = to;
     }
 
+    /**
+     * Returns a string representation of the To Do task
+     *
+     * @return A string representation of the To Do task
+     */
     @Override
     public String toString() {
         return "[T]" + super.toString();
     }
-
 }
