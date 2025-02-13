@@ -1,9 +1,5 @@
 package Vic.storage;
 
-import Vic.exceptions.TaskOutOfBoundsException;
-import Vic.exceptions.UnknownCommandException;
-import Vic.enums.Command;
-import Vic.storage.Storage;
 import Vic.tasks.TaskList;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,49 +8,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.nio.file.Path;
-import java.time.LocalDateTime;
-import Vic.actions.Action;
-import Vic.actions.AddAction;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.io.IOException;
 import Vic.tasks.Task;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 
-import Vic.parser.Parser;
-import Vic.tasks.TaskList;
-import Vic.ui.Ui;
-import Vic.enums.FileCodes;
-import Vic.exceptions.FileContentCorruptedException;
-import Vic.tasks.Deadline;
-import Vic.tasks.Event;
-import Vic.tasks.Task;
-import Vic.tasks.ToDo;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-import org.junit.jupiter.api.io.TempDir;
 
 public class StorageTest {
 
