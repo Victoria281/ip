@@ -25,7 +25,7 @@ import java.time.format.DateTimeFormatter;
  */
 public class Parser {
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
-    private static final LocalDateTime DEFAULT_DATE = LocalDateTime.of(Year.now().getValue(), Month.JANUARY, 1, 23, 59);
+    public static final LocalDateTime DEFAULT_DATE = LocalDateTime.of(Year.now().getValue(), Month.JANUARY, 1, 23, 59);
 
     /**
      * Parses a date string into a LocalDateTime object. If the string is empty or null, returns a default date.
