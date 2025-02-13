@@ -20,11 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 /**
  * The Storage class handles the saving, loading, editing, and deleting of tasks in a file.
@@ -93,7 +89,7 @@ public class Storage {
         try {
             FileReader in = new FileReader(folderPath+fileName);
             BufferedReader br = new BufferedReader(in);
-            Map<String, String> errorMap = new HashMap<>();
+            Map<Integer, String> errorMap = new HashMap<>();
             tasks.clearTasks();
             String line = br.readLine();
             int lineNumber = 0;
@@ -101,13 +97,15 @@ public class Storage {
             while (line != null) {
                 String checkedLine = checkOrFixTaskFormat(line);
                 if (checkedLine.equals("delete")) {
-                    errorMap.put("delete", lineNumber+"");
-                } else if (!checkedLine.equals("-1")) {
-                    line = checkedLine;
-                    errorMap.put(lineNumber+"", checkedLine);
+                    errorMap.put(lineNumber, "delete");
+                } else {
+                    if (!checkedLine.equals("-1")) {
+                        line = checkedLine;
+                        errorMap.put(lineNumber, checkedLine);
+                    }
+                    processTaskLine(line, tasks);
                 }
 
-                processTaskLine(line, tasks);
                 line = br.readLine();
                 lineNumber++;
             }
@@ -132,10 +130,12 @@ public class Storage {
             File folder = new File(folderPath);
             if (!folder.exists()) {
                 folder.mkdirs();
-                File file = new File(folderPath + fileName);
+            }
+            File file = new File(folderPath, fileName);
+            if (!file.exists()) {
                 boolean createdFile = file.createNewFile();
                 if (createdFile) {
-                    Ui.out("Unable to find data. A new storage is created at: " + folderPath + fileName);
+                    Ui.out("Unable to find data. A new storage is created at: " + folder.getAbsolutePath() + "/" + fileName);
                 } else {
                     Ui.out("Failed to create the new storage area. Please try again!");
                     return false;
@@ -152,18 +152,25 @@ public class Storage {
      *
      * @param errorMap stores lines with error or wrong format to update
      */
-    static void fixErrorLines(Map<String, String> errorMap) {
+    static void fixErrorLines(Map<Integer, String> errorMap) {
         try {
             List<String> lines = Files.readAllLines(Paths.get(folderPath + fileName));
-            for (Map.Entry<String, String> entry : errorMap.entrySet()) {
-                if (entry.getKey().equals("delete")) {
-                    lines.remove(Integer.parseInt(entry.getValue()));
+            List<Integer> deleteIndices = new ArrayList<>();
+
+            for (Map.Entry<Integer, String> entry : errorMap.entrySet()) {
+                if (entry.getValue().equals("delete")) {
+                    deleteIndices.add(entry.getKey());
                 } else {
-                    lines.set(Integer.parseInt(entry.getKey()), entry.getValue());
+                    lines.set(entry.getKey(), entry.getValue());
                 }
             }
-            Files.write(Paths.get(folderPath + fileName), lines);
 
+            Collections.sort(deleteIndices, Collections.reverseOrder());
+            for (Integer index : deleteIndices) {
+                lines.remove((int) index);
+            }
+
+            Files.write(Paths.get(folderPath + fileName), lines);
         } catch (IOException e) {
             Ui.out("Error updating file with corrected lines!");
         }
@@ -179,6 +186,13 @@ public class Storage {
      */
     static String checkOrFixTaskFormat(String line) {
         String[] contents = line.split(" \\| ");
+
+        for (String content : contents) {
+            if (content.contains("|")) {
+                return "delete";
+            }
+        }
+
         boolean hasChanged = false;
         if (contents.length < 1) return "delete";
 
@@ -207,31 +221,81 @@ public class Storage {
                 return "delete";
         }
 
-        List<String> fixedContents = new ArrayList<>(Arrays.asList(contents));
-        while (fixedContents.size() < requiredLength) {
-            fixedContents.add("");
-            hasChanged = true;
+        if (contents.length > 2) {
+            if (!contents[1].equals("1") && !contents[1].equals("0")) {
+                contents[1] = "0";
+                hasChanged = true;
+            }
         }
 
-        if ((command == FileCodes.D || command == FileCodes.E) && !fixedContents.get(3).isEmpty()) {
+        List<String> fixedContents = new ArrayList<>(Arrays.asList(contents));
+
+        if (fixedContents.size() > requiredLength) {
+            fixedContents = fixedContents.subList(0, requiredLength);
+            hasChanged = true;
+        } else if (fixedContents.size() < requiredLength) {
+            while (fixedContents.size() < requiredLength) {
+                fixedContents.add("");
+                hasChanged = true;
+            }
+        }
+
+        for (int i = 0; i < fixedContents.size(); i++) {
+            if (fixedContents.get(i).isEmpty()) {
+                fixedContents.set(i, getDefaultForField(i, command));
+                hasChanged = true;
+            }
+        }
+
+        if ((command == FileCodes.D || command == FileCodes.E)) {
             try {
-                Parser.parseDate(fixedContents.get(3));
+                fixedContents.set(3, Parser.formatDate(Parser.parseDate(fixedContents.get(3))));
             } catch (DateTimeParseException e) {
                 fixedContents.set(3, Parser.formatDefaultDate());
             }
             hasChanged = true;
         }
 
-        if (command == FileCodes.E && !fixedContents.get(4).isEmpty()) {
+        if (command == FileCodes.E) {
             try {
-                Parser.parseDate(fixedContents.get(4));
+                fixedContents.set(4, Parser.formatDate(Parser.parseDate(fixedContents.get(3))));
             } catch (DateTimeParseException e) {
                 fixedContents.set(4, Parser.formatDefaultDate());
             }
             hasChanged = true;
         }
 
-        return !hasChanged ? "-1" : String.join(" | ", fixedContents);
+        return (!hasChanged ? "-1" : String.join(" | ", fixedContents));
+    }
+
+    /**
+     * Returns the default value for a specific field based on the task type and field index.
+     *
+     * @param index The index of the field that is being checked.
+     * @param command The type of task by the `FileCodes` enum
+     * @return The default value to use for the given field index, based on the task type.
+     */
+    private static String getDefaultForField(int index, FileCodes command) {
+        switch (command) {
+        case T:
+            if (index == 1) return "0";
+            if (index == 2) return "No description";
+            break;
+        case D:
+            if (index == 1) return "0";
+            if (index == 2) return "No task description";
+            if (index == 3) return Parser.formatDefaultDate();
+            break;
+        case E:
+            if (index == 1) return "0";
+            if (index == 2) return "No event description";
+            if (index == 3) return Parser.formatDefaultDate();
+            if (index == 4) return Parser.formatDefaultDate();
+            break;
+        default:
+            return "";
+        }
+        return "";
     }
 
     /**
