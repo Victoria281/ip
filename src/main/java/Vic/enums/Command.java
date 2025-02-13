@@ -11,6 +11,7 @@ public enum Command {
     MARK("mark"),
     UNMARK("unmark"),
     LIST("list"),
+    FIND("find"),
     DELETE("delete"),
     NONE("none");
 

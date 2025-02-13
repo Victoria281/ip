@@ -1,11 +1,6 @@
 package Vic.parser;
 
-import Vic.actions.AddAction;
-import Vic.actions.MarkAction;
-import Vic.actions.DeleteAction;
-import Vic.actions.ListAction;
-import Vic.actions.ByeAction;
-import Vic.actions.Action;
+import Vic.actions.*;
 import Vic.enums.Command;
 import Vic.storage.Storage;
 import Vic.tasks.TaskList;
@@ -61,6 +56,8 @@ public class Parser {
             return new DeleteAction(storage, taskList, action);
         case LIST:
             return new ListAction(storage, taskList, action);
+        case FIND:
+            return new FindAction(storage, taskList, action);
         case BYE:
             return new ByeAction(storage, taskList, action);
         default:

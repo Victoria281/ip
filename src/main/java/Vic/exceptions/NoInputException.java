@@ -1,10 +1,10 @@
 package Vic.exceptions;
 
 /**
- * This exception is thrown when no matching keyword is found in the task list.
+ * This exception is thrown when no input is detected
  */
-public class KeywordNotFoundException extends Exception {
-    public KeywordNotFoundException(String keyword) {
-        super("The word " + keyword + " is not found in any tasks! Please try again! (◔_◔)");
+public class NoInputException extends Exception {
+    public NoInputException() {
+        super("Please specify a task to find! (╥╯ᗝ╰╥)");
     }
 }

@@ -3,6 +3,7 @@ package Vic.ui;
 import Vic.tasks.Task;
 import Vic.tasks.TaskList;
 
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -147,5 +148,19 @@ public class Ui {
             out("OK, I've marked this task as not done yet:\n\t\t\t"
                     + taskList.getTask(taskID).toString());
         }
+    }
+
+    /**
+     * Displays a message indicating the found tasks based on the search query.
+     *
+     * @param matchedTasks The list of tasks that matched the search query.
+     */
+    public static void showFoundMsg(List<Task> matchedTasks) {
+        showLine();
+        pOut("\tHere are the matching tasks in your list:\t");
+        for (int i = 0; i < matchedTasks.size(); i++) {
+            pOut("\t " + (i + 1) + "." + matchedTasks.get(i).toString());
+        }
+        showLine();
     }
 }

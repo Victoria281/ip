@@ -1,92 +1,57 @@
 package Vic.actions;
 
-import Vic.tasks.Event;
+import Vic.exceptions.KeywordNotFoundException;
+import Vic.exceptions.NoInputException;
 import Vic.storage.Storage;
-import Vic.ui.Ui;
-import Vic.parser.Parser;
 import Vic.tasks.TaskList;
-import Vic.enums.Command;
 import Vic.tasks.Task;
-import Vic.exceptions.EmptyContentException;
-import Vic.tasks.ToDo;
-import Vic.tasks.Deadline;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
+import Vic.ui.Ui;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 /**
- * Handles adding tasks to the task list
+ * Handles finding tasks in the task list based on a search query
  */
-public class AddAction extends Action {
-    private Command command;
+public class FindAction extends Action {
+    private String query;
 
-    public AddAction(Storage storage, TaskList taskList, String action, Command command) {
+    public FindAction(Storage storage, TaskList taskList, String action) {
         super(storage, taskList, action);
-        this.command = command;
+        this.query = action.split(" ", 2).length > 1 ? action.split(" ", 2)[1] : "";
     }
 
     /**
-     * Checks if the input data format is valid.
-     *
-     * @param splitByStart The starting delimiter used to split the input.
-     * @param splitByEnd The ending delimiter used to split the input.
-     * @return Extracted and validated content.
-     * @throws EmptyContentException If any required content is missing.
-     */
-    public String formatData(String splitByStart, String splitByEnd) throws EmptyContentException {
-        String[] parts = action.split(splitByStart);
-        if (parts.length < 2 || parts[1].trim().isEmpty()) {
-            throw new EmptyContentException();
-        }
-        String[] subParts = parts[1].split(splitByEnd);
-        if (subParts.length < 1 || subParts[0].trim().isEmpty()) {
-            throw new EmptyContentException();
-        }
-        return subParts[0].trim();
-    }
-
-    /**
-     * Executes the add task to list action.
-     * Parses the input and creates the appropriate task
+     * Searches for tasks that contain the query string.
      *
      * @return false as the method does not need to exit the application.
-     * @throws DateTimeParseException If the date format is incorrect.
+     * @throws NoInputException If search query is empty.
+     * @throws KeywordNotFoundException If no tasks match the search query.
      */
     @Override
     public boolean execute() {
-        String[] responseLst = action.split(" ");
-        Task newItem = null;
-        String description = "";
         try {
-            if (responseLst.length <= 1) throw new EmptyContentException();
-            switch (command) {
-            case TODO:
-                description = action.split(" ", 2)[1];
-                if (description.length() < 1) throw new EmptyContentException();
-                newItem = new ToDo(description);
-                break;
-            case DEADLINE:
-                description = formatData(" ", "/by");
-                String by = formatData("/by ", "");
-                LocalDateTime byDate = Parser.parseDate(by);
-                newItem = new Deadline(description, byDate);
-                break;
-            case EVENT:
-                description = formatData(" ", "/from");
-                String from = formatData("/from ", "/to");
-                String to = formatData("/to ", "");
-                LocalDateTime fromDate = Parser.parseDate(from);
-                LocalDateTime toDate = Parser.parseDate(to);
-                newItem = new Event(description, fromDate, toDate);
-                break;
+            if (query.isEmpty()) {
+                throw new NoInputException();
             }
-            taskList.addTask(newItem);
-            storage.saveNewTaskToFile(newItem);
-            Ui.showAddMsg(newItem, taskList);
-        } catch (EmptyContentException e) {
+
+            List<Task> matchedTasks = taskList.getTasks().stream()
+                .filter(task -> task.getDescription().toLowerCase().contains(query.toLowerCase()))
+                .collect(Collectors.toList());
+
+            if (matchedTasks.isEmpty()) {
+                throw new KeywordNotFoundException(query);
+            } else {
+                Ui.showFoundMsg(matchedTasks);
+            }
+
+        } catch (KeywordNotFoundException e) {
             Ui.out(e.getMessage());
-        } catch (DateTimeParseException e) {
-            Ui.out("Date given is in wrong format, Please try again! ಥ‿ಥ");
+        } catch (NoInputException e) {
+            Ui.out(e.getMessage());
         }
+
         return false;
     }
 }
