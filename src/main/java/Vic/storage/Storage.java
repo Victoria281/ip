@@ -1,38 +1,43 @@
-package main.java.Vic.storage;
-import main.java.Vic.parser.Parser;
-import main.java.Vic.tasks.TaskList;
-import main.java.Vic.ui.Ui;
-import main.java.Vic.enums.FileCodes;
-import main.java.Vic.exceptions.*;
-import main.java.Vic.tasks.Deadline;
-import main.java.Vic.tasks.Event;
-import main.java.Vic.tasks.Task;
-import main.java.Vic.tasks.ToDo;
+package Vic.storage;
 
-import java.io.FileWriter;
+import Vic.parser.Parser;
+import Vic.tasks.TaskList;
+import Vic.ui.Ui;
+import Vic.enums.FileCodes;
+import Vic.exceptions.FileContentCorruptedException;
+import Vic.tasks.Deadline;
+import Vic.tasks.Event;
+import Vic.tasks.Task;
+import Vic.tasks.ToDo;
+
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.IOException;
 import java.io.FileReader;
-import java.io.BufferedReader;
-import java.util.*;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
+/**
+ * The Storage class handles the saving, loading, editing, and deleting of tasks in a file.
+ */
 public class Storage {
 
     private static String fileName;
     private static String folderPath;
-    private static Ui Ui = new Ui();
 
     public Storage(String fileName, String folderPath) {
         this.fileName = fileName;
         this.folderPath = folderPath;
     }
-
 
     /**
      * On startup load
@@ -45,20 +50,54 @@ public class Storage {
         return tasks;
     }
 
+
     /**
-     * Load the file data into storage
+     * Processes and adds a task to the TaskList based on the fixed line data.
      *
-     * @return the TaskList filled up
+     * @param line  the fixed line containing task data
+     * @param tasks the TaskList to add the task to
+     */
+    private static void processTaskLine(String line, TaskList tasks) {
+        String[] contents = line.split(" \\| ");
+        FileCodes command = FileCodes.convertText(contents[0]);
+        Task newItem = null;
+
+        switch (command) {
+        case T:
+            newItem = new ToDo(contents[2]);
+            break;
+        case D:
+            LocalDateTime by = Parser.parseDate(contents[3]);
+            newItem = new Deadline(contents[2], by);
+            break;
+        case E:
+            LocalDateTime from = Parser.parseDate(contents[3]);
+            LocalDateTime to = Parser.parseDate(contents[4]);
+            newItem = new Event(contents[2], from, to);
+            break;
+        default:
+            return;
+        }
+        if (contents.length > 1 && contents[1].equals("1")) {
+            newItem.markAsDone();
+        }
+        tasks.addTask(newItem);
+    }
+
+    /**
+     * Loads tasks from the file into the provided TaskList.
+     *
+     * @param tasks the TaskList to populate with tasks from the file
      */
     public static TaskList loadTasksFromFile(TaskList tasks) {
         try {
             FileReader in = new FileReader(folderPath+fileName);
             BufferedReader br = new BufferedReader(in);
-
             Map<String, String> errorMap = new HashMap<>();
             tasks.clearTasks();
             String line = br.readLine();
             int lineNumber = 0;
+
             while (line != null) {
                 String checkedLine = checkOrFixTaskFormat(line);
                 if (checkedLine.equals("delete")) {
@@ -68,32 +107,7 @@ public class Storage {
                     errorMap.put(lineNumber+"", checkedLine);
                 }
 
-                Task newItem = null;
-                String[] contents = line.split(" \\| ");
-                FileCodes command = FileCodes.convertText(contents[0]);
-                switch (command) {
-                    case T:
-                        String description = contents[2];
-                        newItem = new ToDo(description);
-                        break;
-                    case D:
-                        String deadlineDescription = contents[2];
-                        LocalDateTime by = Parser.parseDate(contents[3]);
-                        newItem = new Deadline(deadlineDescription, by);
-                        break;
-                    case E:
-                        String eventDescription = contents[2];
-                        LocalDateTime from = Parser.parseDate(contents[3]);
-                        LocalDateTime to = Parser.parseDate(contents[4]);
-                        newItem = new Event(eventDescription, from, to);
-                        break;
-                    default:
-                        break;
-                }
-                if (contents.length > 1 && contents[1].equals("1")) {
-                    newItem.markAsDone();
-                }
-                tasks.addTask(newItem);
+                processTaskLine(line, tasks);
                 line = br.readLine();
                 lineNumber++;
             }
@@ -102,18 +116,16 @@ public class Storage {
 
             fixErrorLines(errorMap);
             return tasks;
-        } catch (IOException e) {
+        } catch (IOException | DateTimeParseException e) {
             Ui.out("Error retrieving historical data! Please try again! (-̀╯⌓╰-́)");
-        } catch (DateTimeParseException e) {
-            Ui.out("Error parsing date in historical data! Please try again! (-̀╯⌓╰-́)");
         }
         return null;
     }
 
     /**
-     * Checks if a file for storage exists
+     * Checks if the file exists, and creates it if it does not.
      *
-     * @return true if file exists and false otherwise
+     * @return true if the file or folder was created successfully, false otherwise
      */
     public static boolean checkFileExists() {
         try {

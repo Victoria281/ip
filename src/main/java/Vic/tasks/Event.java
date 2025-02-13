@@ -1,40 +1,50 @@
-package main.java.Vic.tasks;
+package Vic.tasks;
+
+import Vic.parser.Parser;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Represents an Event task.
+ */
 public class Event extends Task {
 
     protected LocalDateTime from;
     protected LocalDateTime to;
-    private static final DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MMM dd yyyy, h:mma");
 
-    public Event(String description, LocalDateTime from, LocalDateTime  to) {
+    public Event(String description, LocalDateTime from, LocalDateTime to) {
         super(description);
         this.from = from;
         this.to = to;
     }
 
+    /**
+     * Returns a string representation of the Event task.
+     *
+     * @return A string representation of the Event
+     */
     @Override
     public String toString() {
-        return "[E]" + super.toString() + " (from: " + from.format(outputFormatter) + " to: " + to.format(outputFormatter) + ")";
+        return "[E]" + super.toString() + " (from: " + Parser.formatDate(from)
+                + " to: " + Parser.formatDate(to) + ")";
     }
 
     /**
-     * Get task from date
+     * Returns the start time of the Event task formatted as a string.
      *
-     * @return task from date
+     * @return The formatted start time of the event.
      */
     public String getFrom() {
-        return from.format(outputFormatter);
+        return Parser.formatDate(from);
     }
 
     /**
-     * Get task to date
+     * Returns the end time of the Event task formatted as a string.
      *
-     * @return task to date
+     * @return The formatted end time of the event.
      */
     public String getTo() {
-        return to.format(outputFormatter);
+        return Parser.formatDate(to);
     }
-
 }

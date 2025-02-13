@@ -1,28 +1,36 @@
-package main.java.Vic.tasks;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+package Vic.tasks;
 
+import java.time.LocalDateTime;
+import Vic.parser.Parser;
+
+/**
+ * Represents a Deadline task.
+ */
 public class Deadline extends Task {
 
     protected LocalDateTime by;
-    private static final DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MMM dd yyyy, h:mma");
 
     public Deadline(String description, LocalDateTime by) {
         super(description);
         this.by = by;
     }
 
+    /**
+     * Returns a string representation of the Deadline task.
+     *
+     * @return A string representation of the Deadline task
+     */
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + by.format(outputFormatter) + ")";
+        return "[D]" + super.toString() + " (by: " + Parser.formatDate(by) + ")";
     }
 
     /**
-     * Get task by date
+     * Returns the due date of the Deadline task formatted as a string.
      *
-     * @return task by date
+     * @return The formatted due date of the task.
      */
     public String getBy() {
-        return by.format(outputFormatter);
+        return Parser.formatDate(by);
     }
 }
