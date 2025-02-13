@@ -38,6 +38,15 @@ public class Ui {
     }
 
     /**
+     * Prints the provided message to the console, without format
+     *
+     * @param message The message to be printed
+     */
+    public static void pOut(String message) {
+        System.out.println(message);
+    }
+
+    /**
      * Returns the reply message formatted with lines.
      *
      * @param msg The reply from the bot
@@ -51,14 +60,14 @@ public class Ui {
      * Prints the introduction message when the application starts.
      */
     public static void showIntro() {
-        out(INTRO);  // Replaced System.out.println with Ui.out()
+        pOut(INTRO);
     }
 
     /**
      * Prints the outro message when the application ends.
      */
     public static void showOutro() {
-        out(OUTRO);  // Replaced System.out.println with Ui.out()
+        pOut(OUTRO);
     }
 
     /**
@@ -74,7 +83,7 @@ public class Ui {
      * Prints a line separator to the console.
      */
     public static void showLine() {
-        System.err.println(LINE);  // Keeping this as is since it's a standard error output
+        pOut(LINE);
     }
 
     /**
@@ -84,9 +93,9 @@ public class Ui {
      */
     public static void showTaskList(TaskList taskList) {
         showLine();
-        out("\tHere are the tasks in your list:\n");
+        pOut("\tHere are the tasks in your list:\n");
         for (int i = 0; i < taskList.getTasks().size(); i++) {
-            out("\t " + (i + 1) + ". " + taskList.getTasks().get(i).toString());
+            pOut("\t " + (i + 1) + ". " + taskList.getTasks().get(i).toString());
         }
         showLine();
     }
