@@ -35,6 +35,7 @@ public class Parser {
      * @return the parsed LocalDateTime object, or the default date if input is empty or null
      */
     public static LocalDateTime parseDate(String dateString) {
+        assert dateString != null : "Date string cannot be null!";
         return (dateString != null && !dateString.isEmpty())
                 ? LocalDateTime.parse(dateString, dateTimeFormatter) : DEFAULT_DATE;
     }
@@ -111,6 +112,7 @@ public class Parser {
             return -1;
         }
         taskID = taskID - 1;
+        assert taskID >= 0 && taskID < taskList.getTasks().size() : "Task ID is out of bounds!";
         if (taskID < 0 || taskID > taskList.getTasks().size() - 1) {
             throw new TaskOutOfBoundsException();
         }
