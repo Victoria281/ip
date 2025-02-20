@@ -1,27 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;700&display=swap');
+
+
 .root {
-    main-color: rgb(237, 242, 242);       /* Create a looked-up color called "main-color" within root. */
+    main-color: #FFFFFF;
     -fx-background-color: main-color;
+    -fx-font-family: "Albert Sans";
+}
+
+#inputBox {
+    -fx-background-color: #F3F3F3;
 }
 
 .text-field {
-    -fx-background-color: #d9e2ff;
-    -fx-font: 20px "Arial";
-    -fx-prompt-text-fill: gray;
+    -fx-font-size: 15px;
+    -fx-border-color: transparent;
+    -fx-focus-color: transparent;
+    -fx-background-color: #F3F3F3;
+    -fx-padding: 6px;
+    -fx-border-insets: 10px 7px 2px 7px;
+    -fx-background-insets: 10px 7px 2px 7px;
+}
+
+.text-field:focused {
+    -fx-border-color: transparent;
+    -fx-focus-color: transparent;
 }
 
 .button {
-    -fx-background-color: #009afa;
+    -fx-background-color: #FFCBEC;
     -fx-font: italic bold 16px "Arial";
+    -fx-shape: "M 0,0 L 1,1 L 0,2 Z";
+    -fx-padding: 6px;
+    -fx-border-insets: 10px 7px 5px 7px;
+    -fx-background-insets: 10px 7px 5px 7px;
 }
 
 .button:hover {
-    -fx-background-color:cyan;
-    -fx-font-size: 18px;
+    -fx-background-color: #FFADE1;
+    -fx-effect: dropshadow(three-pass-box, #000000, 5, 0, 0, 0);
 }
 
 .button:pressed {
-    -fx-background-color:orange;
-    -fx-font-size: 20px;
+    -fx-background-color: #FF6FCA;
+    -fx-effect: dropshadow(three-pass-box, #000000, 5, 0, 0, 0);
 }
 
 .scroll-pane,
@@ -30,12 +51,12 @@
 }
 
 .scroll-bar {
-    -fx-font-size: 10px;  /* Change width of scroll bar. */
-    -fx-background-color: main-color;
+    -fx-font-size: 8px;
+    -fx-background-color: #FFFFFF;
 }
 
 .scroll-bar .thumb {
-    -fx-background-color: #ffb49c;
+    -fx-background-color: #EEEEEE;
     -fx-background-radius: 1em;
 }
 
@@ -45,3 +66,4 @@
     -fx-pref-height: 0;
     -fx-opacity: 0;
 }
+

@@ -6,13 +6,12 @@ import java.util.stream.Collectors;
 import vic.exceptions.KeywordNotFoundException;
 import vic.exceptions.NoInputException;
 import vic.response.ErrorResponse;
+import vic.response.MessageResponse;
+import vic.response.Response;
 import vic.storage.Storage;
 import vic.tasks.Task;
 import vic.tasks.TaskList;
 import vic.ui.Ui;
-import vic.response.ErrorResponse;
-import vic.response.MessageResponse;
-import vic.response.Response;
 
 /**
  * Handles finding tasks in the task list based on a search query

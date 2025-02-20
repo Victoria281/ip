@@ -3,7 +3,6 @@ package vic.actions;
 import vic.response.OutroResponse;
 import vic.storage.Storage;
 import vic.tasks.TaskList;
-import vic.ui.Ui;
 
 /**
  * Handles marking tasks as done or undone

@@ -5,10 +5,8 @@ package vic.response;
  */
 public class IntroResponse extends Response {
 
-    private static final String INTRO = "\n\n\t Hello! I'm "
-            + "Vic"
-            + "\n"
-            + "\t What can I do for you?\n";
+    private static final String INTRO = "Hello! I'm Vic \n"
+            + "What can I do for you?\n";
 
     /**
      * Constructs an IntroResponse object.

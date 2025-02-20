@@ -29,6 +29,10 @@ public class MainWindow extends AnchorPane {
     private Image userImage = new Image(this.getClass().getResourceAsStream("/images/vic.png"));
     private Image vicImage = new Image(this.getClass().getResourceAsStream("/images/vic.png"));
 
+    /**
+     * Initializes the main window by setting up the scroll pane and displaying an intro message
+     * from Vic in the dialog container.
+     */
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
@@ -38,13 +42,18 @@ public class MainWindow extends AnchorPane {
     }
 
     /**
-     * Injects the BPlusChatter instance.
+     * Sets the Vic instance that will handle the user input and generate responses.
+     *
+     * @param vic The Vic instance used for handling the input and generating responses.
      */
     public void setVic(Vic vic) {
         this.vic = vic;
     }
 
-
+    /**
+     * Handles user input by retrieving the text from the input field, passing it to the Vic instance,
+     * and updating the dialog container with the user's input and Vic's response.
+     */
     @FXML
     private void handleUserInput() {
         String input = userInput.getText();

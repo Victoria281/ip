@@ -5,14 +5,15 @@ package vic.response;
  * Specific response types (intro, outro, message, error) will extend this class.
  */
 public abstract class Response {
-    protected final String message;  // The message content of the response
-    protected final boolean isError; // Flag to indicate if this is an error message
+    protected final String message;
+    protected final boolean isError;
 
     /**
      * Constructs a Response object.
      *
      * @param message The message content of the response.
-     * @param isError A boolean flag indicating whether the response is an error message (true) or a normal message (false).
+     * @param isError A boolean flag indicating whether the response is
+     *                an error message (true) or a normal message (false).
      */
     public Response(String message, boolean isError) {
         this.message = message;

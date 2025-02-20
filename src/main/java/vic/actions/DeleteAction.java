@@ -11,9 +11,6 @@ import vic.tasks.Task;
 import vic.tasks.TaskList;
 import vic.ui.Ui;
 
-import java.time.format.DateTimeParseException;
-
-
 /**
  * Handles deleting tasks from the task list
  */

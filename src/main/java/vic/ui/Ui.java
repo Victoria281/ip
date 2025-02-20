@@ -76,9 +76,9 @@ public class Ui {
      */
     public static String getFoundMsg(List<Task> matchedTasks) {
         String message = "";
-        message += "\tHere are the matching tasks in your list:\t";
+        message += "Here are the matching tasks in your list:\t\n";
         for (int i = 0; i < matchedTasks.size(); i++) {
-            message += ("\t " + (i + 1) + "." + matchedTasks.get(i).toString());
+            message += ("\t " + (i + 1) + "." + matchedTasks.get(i).toString() + "\n");
         }
         return message;
     }
@@ -90,9 +90,9 @@ public class Ui {
      */
     public static String getTaskListMsg(TaskList taskList) {
         String message = "";
-        message += "\tHere are the tasks in your list:\n";
+        message += "Here are the tasks in your list:\n";
         for (int i = 0; i < taskList.getTasks().size(); i++) {
-            message += ("\t " + (i + 1) + ". " + taskList.getTasks().get(i).toString());
+            message += ("\t " + (i + 1) + ". " + taskList.getTasks().get(i).toString() + "\n");
         }
         return message;
     }

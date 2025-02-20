@@ -11,18 +11,31 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.layout.HBox;
 import javafx.scene.image.ImageView;
-import vic.enums.Command;
+import javafx.scene.layout.HBox;
 import vic.response.Response;
 
+/**
+ * Represents a dialog box in the user interface.
+ * It displays a message along with a display picture and an optional name label.
+ */
 public class DialogBox extends HBox {
     @FXML
     private Label dialog;
     @FXML
     private ImageView displayPicture;
+    @FXML
+    private Label nameLabel;
 
-    private DialogBox(String text, Image img) {
+    /**
+     * Creates a new DialogBox with the specified text, image, and name.
+     * Loads the FXML file for the DialogBox layout and initializes the components.
+     *
+     * @param text The text to be displayed in the dialog.
+     * @param img The image to be displayed as the user's display picture (may be null).
+     * @param name The name to be displayed beside the dialog (may be null).
+     */
+    private DialogBox(String text, Image img, String name) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(MainWindow.class.getResource("/view/DialogBox.fxml"));
             fxmlLoader.setController(this);
@@ -33,10 +46,25 @@ public class DialogBox extends HBox {
         }
 
         dialog.setText(text);
-        displayPicture.setImage(img);
+        if (img != null) {
+            displayPicture.setImage(img);
+            displayPicture.setVisible(true);
+            displayPicture.setManaged(true);
+        } else {
+            displayPicture.setVisible(false);
+            displayPicture.setManaged(false);
+        }
+        if (name != null) {
+            nameLabel.setText(name);
+        } else {
+            nameLabel.setVisible(false);
+        }
     }
 
-
+    /**
+     * Flips the dialog box by reversing its components, changing the alignment,
+     * and adjusting the style class of the dialog label to indicate a reply.
+     */
     private void flip() {
         ObservableList<Node> tmp = FXCollections.observableArrayList(this.getChildren());
         Collections.reverse(tmp);
@@ -45,35 +73,36 @@ public class DialogBox extends HBox {
         dialog.getStyleClass().add("reply-label");
     }
 
-
+    /**
+     * Creates a dialog box for user input, with the given text and image.
+     * Applies the style class "user-message" to the dialog.
+     *
+     * @param text The text to be displayed in the dialog.
+     * @param img The image to be displayed as the user's display picture.
+     * @return A DialogBox instance representing the user input.
+     */
     public static DialogBox getUserDialog(String text, Image img) {
-        return new DialogBox(text, img);
-    }
-
-
-    public static DialogBox getVicDialog(Response response, Image img) {
-        var db = new DialogBox(response.getMessage(), img);
-        db.flip();
-//        db.changeDialogStyle(action);
+        DialogBox db = new DialogBox(text, null, null);
+        db.dialog.getStyleClass().add("user-message");
         return db;
     }
 
-    private void changeDialogStyle(Command action) {
-        switch(action) {
-        case TODO:
-        case EVENT:
-        case DEADLINE:
-//            dialog.getStyleClass().add("add-label");
-            break;
-        case UNMARK:
-        case MARK:
-//            dialog.getStyleClass().add("marked-label");
-            break;
-        case DELETE:
-//            dialog.getStyleClass().add("delete-label");
-            break;
-        default:
-            // Do nothing
+    /**
+     * Creates a dialog box for the system (Vic) response, with the given response message
+     * and image. Applies error styling if the response indicates an error, and flips
+     * the dialog box for the system's reply.
+     *
+     * @param response The system's response object containing the message and error state.
+     * @param img The image to be displayed as Vic's display picture.
+     * @return A DialogBox instance representing Vic's response.
+     */
+    public static DialogBox getVicDialog(Response response, Image img) {
+        DialogBox db = new DialogBox(response.getMessage(), img, "Vic");
+        if (response.isError()) {
+            db.dialog.getStyleClass().add("error-message");
         }
+        db.flip();
+        db.dialog.getStyleClass().add("vic-message");
+        return db;
     }
 }
