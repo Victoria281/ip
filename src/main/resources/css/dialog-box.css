@@ -1,0 +1,44 @@
+.label {
+    -fx-padding: 6px;
+    -fx-border-insets: 0px 7px 0px 7px;
+    -fx-background-insets: 0px 7px 0px 7px;
+}
+
+.user-message {
+    -fx-background-color: #FF86D3!important;
+    -fx-text-fill: #FFFFFF;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+#dialog {
+    -fx-background-color: #F2F2F2;
+    -fx-background-radius: 1em 1em 0 1em;
+    -fx-border-radius: 1em 1em 0 1em;
+    -fx-padding: 10px 15px 10px 15px;
+    -fx-min-width: 60px;
+    -fx-wrap-text: true;
+    -fx-font-size: 14px;
+}
+
+.vic-message {
+    -fx-background-color: #F2F2F2;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.error-message {
+    -fx-text-fill: #FF2D2D;
+    -fx-font-weight: bold;
+}
+
+.reply-label {
+    -fx-background-radius: 1em 1em 1em 0;
+    -fx-border-radius: 1em 1em 1em 0;
+}
+
+#displayPicture {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 3, 0.5, 2, 2);
+    -fx-scale-x: 1;
+    -fx-scale-y: 1;
+    -fx-rotate: 0;
+}
+

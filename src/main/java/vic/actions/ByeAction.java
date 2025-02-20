@@ -1,5 +1,6 @@
 package vic.actions;
 
+import vic.response.OutroResponse;
 import vic.storage.Storage;
 import vic.tasks.TaskList;
 
@@ -21,7 +22,13 @@ public class ByeAction extends Action {
      * @return true to exit the application
      */
     @Override
-    public boolean execute() {
-        return true;
+    public OutroResponse execute() {
+        return new OutroResponse();
+    }
+
+
+    @Override
+    public boolean toExit() {
+        return false;
     }
 }

@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;700&display=swap');
+
+
+.root {
+    main-color: #FFFFFF;
+    -fx-background-color: main-color;
+    -fx-font-family: "Albert Sans";
+}
+
+#inputBox {
+    -fx-background-color: #F3F3F3;
+}
+
+.text-field {
+    -fx-font-size: 15px;
+    -fx-border-color: transparent;
+    -fx-focus-color: transparent;
+    -fx-background-color: #F3F3F3;
+    -fx-padding: 6px;
+    -fx-border-insets: 10px 7px 2px 7px;
+    -fx-background-insets: 10px 7px 2px 7px;
+}
+
+.text-field:focused {
+    -fx-border-color: transparent;
+    -fx-focus-color: transparent;
+}
+
+.button {
+    -fx-background-color: #FFCBEC;
+    -fx-font: italic bold 16px "Arial";
+    -fx-shape: "M 0,0 L 1,1 L 0,2 Z";
+    -fx-padding: 6px;
+    -fx-border-insets: 10px 7px 5px 7px;
+    -fx-background-insets: 10px 7px 5px 7px;
+}
+
+.button:hover {
+    -fx-background-color: #FFADE1;
+    -fx-effect: dropshadow(three-pass-box, #000000, 5, 0, 0, 0);
+}
+
+.button:pressed {
+    -fx-background-color: #FF6FCA;
+    -fx-effect: dropshadow(three-pass-box, #000000, 5, 0, 0, 0);
+}
+
+.scroll-pane,
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar {
+    -fx-font-size: 8px;
+    -fx-background-color: #FFFFFF;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #EEEEEE;
+    -fx-background-radius: 1em;
+}
+
+/* Hides the increment and decrement buttons. */
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-pref-height: 0;
+    -fx-opacity: 0;
+}
+
