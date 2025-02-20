@@ -45,7 +45,7 @@ public class Storage {
     }
 
     /**
-     * On startup load
+     * Loads the task list from storage on startup.
      *
      * @return the TaskList created
      */
@@ -331,7 +331,7 @@ public class Storage {
     }
 
     /**
-     * Save new task to file
+     * Saves a new task to the storage file.
      *
      * @param task task to save to file
      */

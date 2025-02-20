@@ -17,17 +17,17 @@ import vic.ui.Ui;
 public class MarkAction extends Action {
     private Command command;
     private String option;
-    private boolean toMarkDone;
+    private boolean isMarkDone;
 
     /**
      * Constructor for class
      */
     public MarkAction(Storage storage, TaskList taskList, String action, Command command, String option,
-                      boolean toMarkDone) {
+                      boolean isMarkDone) {
         super(storage, taskList, action);
         this.command = command;
         this.option = option;
-        this.toMarkDone = toMarkDone;
+        this.isMarkDone = isMarkDone;
     }
 
     /**
@@ -41,7 +41,7 @@ public class MarkAction extends Action {
         String response = "";
         try {
             int taskID = Parser.parseTaskId(option, taskList);
-            if (toMarkDone) {
+            if (isMarkDone) {
                 if (!taskList.getTask(taskID).getStatus()) {
                     taskList.getTask(taskID).markAsDone();
                     storage.saveEditedTaskAtIndex(taskID, taskList.getTask(taskID));
@@ -56,7 +56,7 @@ public class MarkAction extends Action {
                     throw new ActionCompletedException();
                 }
             }
-            response = Ui.getMarkAndUnmarkMsg(taskID, taskList, toMarkDone);
+            response = Ui.getMarkAndUnmarkMsg(taskID, taskList, isMarkDone);
             return new MessageResponse(response);
         } catch (ActionCompletedException e) {
             return new ErrorResponse(e.getMessage());

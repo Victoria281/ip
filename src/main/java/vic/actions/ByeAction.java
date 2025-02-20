@@ -28,7 +28,7 @@ public class ByeAction extends Action {
 
 
     @Override
-    public boolean toExit() {
+    public boolean isExit() {
         return false;
     }
 }
