@@ -33,7 +33,7 @@ public abstract class Action {
      *
      * @return true if the bot should exit, false otherwise.
      */
-    public boolean toExit() {
+    public boolean isExit() {
         return false;
     }
 }

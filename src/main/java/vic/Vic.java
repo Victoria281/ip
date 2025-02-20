@@ -81,7 +81,7 @@ public class Vic {
 
         try {
             Action actionObject = Parser.parseCommand(command, String.join(" ", responseLst), storage, taskList);
-            if (actionObject.toExit()) {
+            if (actionObject.isExit()) {
                 return new OutroResponse();
             }
             return actionObject.execute();
@@ -109,6 +109,8 @@ public class Vic {
 
     /**
      * The entry point of the application.
+     *
+     *  @param args Command-line arguments passed to the application. unused.
      */
     public static void main(String[] args) {
         new Vic(FILE_NAME, FOLDER_PATH).run();
