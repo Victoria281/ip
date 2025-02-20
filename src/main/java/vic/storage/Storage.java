@@ -64,6 +64,7 @@ public class Storage {
      */
     private static void processTaskLine(String line, TaskList tasks) {
         String[] contents = line.split(" \\| ");
+        assert contents.length >= 3 : "Line format error: Expect at least 3 fields for each line";
         FileCodes command = FileCodes.convertText(contents[0]);
         Task newItem = null;
 
@@ -95,6 +96,7 @@ public class Storage {
      * @param tasks the TaskList to populate with tasks from the file
      */
     public static TaskList loadTasksFromFile(TaskList tasks) {
+        assert tasks != null : "Task list should have already been initialised";
         try {
             FileReader in = new FileReader(folderPath + fileName);
             BufferedReader br = new BufferedReader(in);
