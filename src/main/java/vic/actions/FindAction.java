@@ -5,10 +5,14 @@ import java.util.stream.Collectors;
 
 import vic.exceptions.KeywordNotFoundException;
 import vic.exceptions.NoInputException;
+import vic.response.ErrorResponse;
 import vic.storage.Storage;
 import vic.tasks.Task;
 import vic.tasks.TaskList;
 import vic.ui.Ui;
+import vic.response.ErrorResponse;
+import vic.response.MessageResponse;
+import vic.response.Response;
 
 /**
  * Handles finding tasks in the task list based on a search query
@@ -32,7 +36,7 @@ public class FindAction extends Action {
      * @throws KeywordNotFoundException If no tasks match the search query.
      */
     @Override
-    public boolean execute() {
+    public Response execute() {
         try {
             if (query.isEmpty()) {
                 throw new NoInputException();
@@ -45,15 +49,14 @@ public class FindAction extends Action {
             if (matchedTasks.isEmpty()) {
                 throw new KeywordNotFoundException(query);
             } else {
-                Ui.showFoundMsg(matchedTasks);
+                String response = Ui.getFoundMsg(matchedTasks);
+                return new MessageResponse(response);
             }
 
         } catch (KeywordNotFoundException e) {
-            Ui.out(e.getMessage());
+            return new ErrorResponse(e.getMessage());
         } catch (NoInputException e) {
-            Ui.out(e.getMessage());
+            return new ErrorResponse(e.getMessage());
         }
-
-        return false;
     }
 }

@@ -5,6 +5,11 @@ import vic.enums.Command;
 import vic.exceptions.UnknownCommandException;
 import vic.exceptions.VicException;
 import vic.parser.Parser;
+import vic.response.ErrorResponse;
+import vic.response.IntroResponse;
+import vic.response.MessageResponse;
+import vic.response.OutroResponse;
+import vic.response.Response;
 import vic.storage.Storage;
 import vic.tasks.TaskList;
 import vic.ui.Ui;
@@ -47,27 +52,40 @@ public class Vic {
         }
     }
 
+    public Response handleRun(String input) {
+        if (input.isEmpty()) {
+            return new OutroResponse();
+        }
+
+        String[] responseLst = input.split(" ");
+        Command command = Command.convertText(responseLst[0]);
+
+        try {
+            Action actionObject = Parser.parseCommand(command, input, storage, taskList);
+            if (actionObject.toExit()) {
+                return new OutroResponse();
+            }
+            return actionObject.execute();
+        } catch (UnknownCommandException e) {
+            return new ErrorResponse(e.getMessage());
+        }
+    }
+
     /**
      * Starts and runs the Vic chatbot application.
      * It continuously accepts user input and performs actions.
      */
     public void run() {
-        ui.showIntro();
-        boolean isExit = false;
+        ui.out(new IntroResponse().getMessage());
 
-        while (!isExit) {
-            String action = ui.readCommand();
-            String[] responseLst = action.split(" ");
-            Command command = Command.convertText(responseLst[0]);
-
-            try {
-                Action actionObject = Parser.parseCommand(command, action, storage, taskList);
-                isExit = actionObject.execute();
-            } catch (UnknownCommandException e) {
-                ui.out(e.getMessage());
+        while (true) {
+            String input = ui.readCommand();
+            Response response = handleRun(input);
+            ui.out(response.getMessage());
+            if (response instanceof OutroResponse) {
+                break;
             }
         }
-        ui.showOutro();
     }
 
     /**

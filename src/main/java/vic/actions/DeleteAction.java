@@ -3,10 +3,15 @@ package vic.actions;
 import vic.exceptions.EmptyContentException;
 import vic.exceptions.TaskOutOfBoundsException;
 import vic.parser.Parser;
+import vic.response.ErrorResponse;
+import vic.response.MessageResponse;
+import vic.response.Response;
 import vic.storage.Storage;
 import vic.tasks.Task;
 import vic.tasks.TaskList;
 import vic.ui.Ui;
+
+import java.time.format.DateTimeParseException;
 
 
 /**
@@ -28,7 +33,7 @@ public class DeleteAction extends Action {
      * @throws EmptyContentException If the user command does not provide a valid task ID
      */
     @Override
-    public boolean execute() {
+    public Response execute() {
         String[] responseLst = action.split(" ");
         int taskID;
         try {
@@ -37,17 +42,15 @@ public class DeleteAction extends Action {
             }
             taskID = Parser.parseTaskId(responseLst[1], taskList);
         } catch (EmptyContentException e) {
-            Ui.out(e.getMessage());
-            return false;
+            return new ErrorResponse(e.getMessage());
         } catch (TaskOutOfBoundsException e) {
-            return false;
+            return new ErrorResponse(e.getMessage());
         }
-
         Task removedTask = taskList.getTask(taskID);
         taskList.removeTask(taskID);
         storage.deleteTaskAtIndex(taskID, removedTask);
-        Ui.showRemoveMsg(taskList.getTasks().size(), removedTask.toString());
-        return false;
+        String response = Ui.getRemoveMsg(taskList.getTasks().size(), removedTask.toString());
+        return new MessageResponse(response);
     }
 
 }

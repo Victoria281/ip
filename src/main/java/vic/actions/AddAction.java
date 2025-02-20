@@ -6,6 +6,9 @@ import java.time.format.DateTimeParseException;
 import vic.enums.Command;
 import vic.exceptions.EmptyContentException;
 import vic.parser.Parser;
+import vic.response.ErrorResponse;
+import vic.response.MessageResponse;
+import vic.response.Response;
 import vic.storage.Storage;
 import vic.tasks.Deadline;
 import vic.tasks.Event;
@@ -49,6 +52,52 @@ public class AddAction extends Action {
     }
 
     /**
+     * Creates a task based on the command type
+     *
+     * @param action The action with the comman type and action to do
+     * @return The created task.
+     * @throws EmptyContentException If the task description is empty.
+     * @throws DateTimeParseException If the date format is incorrect.
+     */
+    private Task createTask(String action) throws EmptyContentException, DateTimeParseException {
+        String[] responseLst = action.split(" ");
+        Task newItem = null;
+        String description = "";
+
+        if (responseLst.length <= 1) {
+            throw new EmptyContentException();
+        }
+
+        switch (command) {
+        case TODO:
+            description = action.split(" ", 2)[1];
+            if (description.isEmpty()) {
+                throw new EmptyContentException();
+            }
+            newItem = new ToDo(description);
+            break;
+        case DEADLINE:
+            description = formatData(" ", "/by");
+            String by = formatData("/by ", "");
+            LocalDateTime byDate = Parser.parseDate(by);
+            newItem = new Deadline(description, byDate);
+            break;
+        case EVENT:
+            description = formatData(" ", "/from");
+            String from = formatData("/from ", "/to");
+            String to = formatData("/to ", "");
+            LocalDateTime fromDate = Parser.parseDate(from);
+            LocalDateTime toDate = Parser.parseDate(to);
+            newItem = new Event(description, fromDate, toDate);
+            break;
+        default:
+            break;
+        }
+
+        return newItem;
+    }
+
+    /**
      * Executes the add task to list action.
      * Parses the input and creates the appropriate task
      *
@@ -56,47 +105,18 @@ public class AddAction extends Action {
      * @throws DateTimeParseException If the date format is incorrect.
      */
     @Override
-    public boolean execute() {
-        String[] responseLst = action.split(" ");
-        Task newItem = null;
-        String description = "";
+    public Response execute() {
         try {
-            if (responseLst.length <= 1) {
-                throw new EmptyContentException();
-            }
-            switch (command) {
-            case TODO:
-                description = action.split(" ", 2)[1];
-                if (description.length() < 1) {
-                    throw new EmptyContentException();
-                }
-                newItem = new ToDo(description);
-                break;
-            case DEADLINE:
-                description = formatData(" ", "/by");
-                String by = formatData("/by ", "");
-                LocalDateTime byDate = Parser.parseDate(by);
-                newItem = new Deadline(description, byDate);
-                break;
-            case EVENT:
-                description = formatData(" ", "/from");
-                String from = formatData("/from ", "/to");
-                String to = formatData("/to ", "");
-                LocalDateTime fromDate = Parser.parseDate(from);
-                LocalDateTime toDate = Parser.parseDate(to);
-                newItem = new Event(description, fromDate, toDate);
-                break;
-            default:
-                break;
-            }
+            Task newItem = createTask(action);
             taskList.addTask(newItem);
             storage.saveNewTaskToFile(newItem);
-            Ui.showAddMsg(newItem, taskList);
+            String response = Ui.getAddMsg(newItem, taskList);
+            return new MessageResponse(response);
         } catch (EmptyContentException e) {
-            Ui.out(e.getMessage());
+            return new ErrorResponse(e.getMessage());
         } catch (DateTimeParseException e) {
-            Ui.out("Date given is in wrong format, Please try again! ಥ‿ಥ");
+            return new ErrorResponse("Date given is in wrong format, Please try again! ಥ‿ಥ");
         }
-        return false;
     }
+
 }

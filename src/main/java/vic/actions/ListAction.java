@@ -1,5 +1,7 @@
 package vic.actions;
 
+import vic.response.MessageResponse;
+import vic.response.Response;
 import vic.storage.Storage;
 import vic.tasks.TaskList;
 import vic.ui.Ui;
@@ -22,9 +24,9 @@ public class ListAction extends Action {
      * @return false as the method does not need to exit the application.
      */
     @Override
-    public boolean execute() {
+    public Response execute() {
         storage.loadTasksFromFile(taskList);
-        Ui.showTaskList(taskList);
-        return false;
+        String response = Ui.getTaskListMsg(taskList);
+        return new MessageResponse(response);
     }
 }

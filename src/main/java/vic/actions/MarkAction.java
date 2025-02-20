@@ -4,6 +4,9 @@ import vic.enums.Command;
 import vic.exceptions.ActionCompletedException;
 import vic.exceptions.TaskOutOfBoundsException;
 import vic.parser.Parser;
+import vic.response.ErrorResponse;
+import vic.response.MessageResponse;
+import vic.response.Response;
 import vic.storage.Storage;
 import vic.tasks.TaskList;
 import vic.ui.Ui;
@@ -34,14 +37,14 @@ public class MarkAction extends Action {
      * @throws ActionCompletedException If the task is already in the desired state
      */
     @Override
-    public boolean execute() {
+    public Response execute() {
+        String response = "";
         try {
             int taskID = Parser.parseTaskId(option, taskList);
             if (toMarkDone) {
                 if (!taskList.getTask(taskID).getStatus()) {
                     taskList.getTask(taskID).markAsDone();
                     storage.saveEditedTaskAtIndex(taskID, taskList.getTask(taskID));
-                    Ui.showMarkAndUnmarkMsg(taskID, taskList, toMarkDone);
                 } else {
                     throw new ActionCompletedException();
                 }
@@ -49,17 +52,16 @@ public class MarkAction extends Action {
                 if (taskList.getTask(taskID).getStatus()) {
                     taskList.getTask(taskID).markAsUndone();
                     storage.saveEditedTaskAtIndex(taskID, taskList.getTask(taskID));
-                    Ui.showMarkAndUnmarkMsg(taskID, taskList, toMarkDone);
                 } else {
                     throw new ActionCompletedException();
                 }
             }
+            response = Ui.getMarkAndUnmarkMsg(taskID, taskList, toMarkDone);
+            return new MessageResponse(response);
         } catch (ActionCompletedException e) {
-            Ui.out(e.getMessage());
-            return false;
+            return new ErrorResponse(e.getMessage());
         } catch (TaskOutOfBoundsException e) {
-            return false;
+            return new ErrorResponse(e.getMessage());
         }
-        return false;
     }
 }

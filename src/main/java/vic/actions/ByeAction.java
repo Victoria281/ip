@@ -1,7 +1,9 @@
 package vic.actions;
 
+import vic.response.OutroResponse;
 import vic.storage.Storage;
 import vic.tasks.TaskList;
+import vic.ui.Ui;
 
 /**
  * Handles marking tasks as done or undone
@@ -21,7 +23,13 @@ public class ByeAction extends Action {
      * @return true to exit the application
      */
     @Override
-    public boolean execute() {
-        return true;
+    public OutroResponse execute() {
+        return new OutroResponse();
+    }
+
+
+    @Override
+    public boolean toExit() {
+        return false;
     }
 }
