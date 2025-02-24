@@ -16,10 +16,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import vic.enums.FileCodes;
 import vic.exceptions.FileContentCorruptedException;
 import vic.parser.Parser;
+import vic.tag.Tag;
 import vic.tasks.Deadline;
 import vic.tasks.Event;
 import vic.tasks.Task;
@@ -70,23 +72,25 @@ public class Storage {
 
         switch (command) {
         case T:
-            newItem = new ToDo(contents[2]);
+            newItem = new ToDo(contents[2], Parser.parseTagsInStorage(contents, 3));
             break;
         case D:
             LocalDateTime by = Parser.parseDate(contents[3]);
-            newItem = new Deadline(contents[2], by);
+            newItem = new Deadline(contents[2], by, Parser.parseTagsInStorage(contents, 4));
             break;
         case E:
             LocalDateTime from = Parser.parseDate(contents[3]);
             LocalDateTime to = Parser.parseDate(contents[4]);
-            newItem = new Event(contents[2], from, to);
+            newItem = new Event(contents[2], from, to, Parser.parseTagsInStorage(contents, 5));
             break;
         default:
             return;
         }
+
         if (contents.length > 1 && contents[1].equals("1")) {
             newItem.markAsDone();
         }
+
         tasks.addTask(newItem);
     }
 
@@ -223,13 +227,13 @@ public class Storage {
         int requiredLength;
         switch (command) {
         case T:
-            requiredLength = 3;
-            break;
-        case D:
             requiredLength = 4;
             break;
-        case E:
+        case D:
             requiredLength = 5;
+            break;
+        case E:
+            requiredLength = 6;
             break;
         default:
             return "delete";
@@ -298,6 +302,9 @@ public class Storage {
             if (index == 2) {
                 return "No description";
             }
+            if (index == 3) {
+                return "";
+            }
             break;
         case D:
             if (index == 1) {
@@ -308,6 +315,9 @@ public class Storage {
             }
             if (index == 3) {
                 return Parser.formatDefaultDate();
+            }
+            if (index == 4) {
+                return "";
             }
             break;
         case E:
@@ -323,9 +333,14 @@ public class Storage {
             if (index == 4) {
                 return Parser.formatDefaultDate();
             }
+            if (index == 5) {
+                return "";
+            }
             break;
         default:
-            return "";
+            if (index == 5) {
+                return "";
+            }
         }
         return "";
     }
@@ -343,20 +358,21 @@ public class Storage {
             FileCodes taskType;
             String isDone = "0";
             String line = "";
+            Ui.out(task.getTagsStr());
 
             if (task instanceof ToDo) {
                 taskType = FileCodes.T;
-                line = String.format("%s | %s | %s", taskType, isDone, task.getDescription());
+                line = String.format("%s | %s | %s | %s", taskType, isDone, task.getDescription(), task.getTagsStr());
             } else if (task instanceof Deadline) {
                 taskType = FileCodes.D;
                 Deadline deadline = (Deadline) task;
-                line = String.format("%s | %s | %s | %s", taskType, isDone, deadline.getDescription(),
-                        deadline.getBy());
+                line = String.format("%s | %s | %s | %s | %s", taskType, isDone, deadline.getDescription(),
+                        deadline.getBy(), task.getTagsStr());
             } else if (task instanceof Event) {
                 taskType = FileCodes.E;
                 Event event = (Event) task;
-                line = String.format("%s | %s | %s | %s | %s", taskType, isDone, event.getDescription(),
-                        event.getFrom(), event.getTo());
+                line = String.format("%s | %s | %s | %s | %s | %s", taskType, isDone, event.getDescription(),
+                        event.getFrom(), event.getTo(), task.getTagsStr());
             }
 
             bw.write(line);
@@ -433,17 +449,20 @@ public class Storage {
 
             if (task instanceof ToDo) {
                 taskType = FileCodes.T;
-                line = String.format("%s | %s | %s", taskType, isDone, task.getDescription());
+                line = String.format("%s | %s | %s | %s", taskType, isDone, task.getDescription(), task.getTagsStr());
             } else if (task instanceof Deadline) {
                 taskType = FileCodes.D;
                 Deadline deadline = (Deadline) task;
-                line = String.format("%s | %s | %s | %s", taskType, isDone, deadline.getDescription(),
-                        deadline.getBy());
+                line = String.format("%s | %s | %s | %s | %s", taskType, isDone, deadline.getDescription(),
+                        deadline.getBy(), task.getTagsStr());
             } else if (task instanceof Event) {
                 taskType = FileCodes.E;
                 Event event = (Event) task;
-                line = String.format("%s | %s | %s | %s | %s", taskType, isDone, event.getDescription(),
-                        event.getFrom(), event.getTo());
+                line = String.format("%s | %s | %s | %s | %s | %s", taskType, isDone, event.getDescription(),
+                        event.getFrom(), event.getTo(), task.getTagsStr());
+            }
+            if (!task.getTags().isEmpty()) {
+                line += " | " + task.getTagsStr();
             }
             lines.set(index, line);
             Files.write(Paths.get(folderPath + fileName), lines);

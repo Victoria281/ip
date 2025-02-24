@@ -2,6 +2,7 @@ package vic.actions;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 
 import vic.enums.Command;
 import vic.exceptions.EmptyContentException;
@@ -10,6 +11,7 @@ import vic.response.ErrorResponse;
 import vic.response.MessageResponse;
 import vic.response.Response;
 import vic.storage.Storage;
+import vic.tag.Tag;
 import vic.tasks.Deadline;
 import vic.tasks.Event;
 import vic.tasks.Task;
@@ -63,24 +65,38 @@ public class AddAction extends Action {
         String[] responseLst = action.split(" ");
         Task newItem = null;
         String description = "";
+        ArrayList<Tag> tags = new ArrayList<>();
 
         if (responseLst.length <= 1) {
             throw new EmptyContentException();
         }
 
+
+        if (action.contains("-t")) {
+            String[] parts = action.split("-t", 2);
+            action = parts[0].trim();
+
+            String tagPart = parts[1].trim();
+            String[] tagStrings = tagPart.split(",");
+            for (String tagString : tagStrings) {
+                if (!tagString.trim().isEmpty()) {
+                    tags.add(new Tag(tagString.trim()));
+                }
+            }
+        }
         switch (command) {
         case TODO:
             description = action.split(" ", 2)[1];
             if (description.isEmpty()) {
                 throw new EmptyContentException();
             }
-            newItem = new ToDo(description);
+            newItem = new ToDo(description, tags);
             break;
         case DEADLINE:
             description = formatData(" ", "/by");
             String by = formatData("/by ", "");
             LocalDateTime byDate = Parser.parseDate(by);
-            newItem = new Deadline(description, byDate);
+            newItem = new Deadline(description, byDate, tags);
             break;
         case EVENT:
             description = formatData(" ", "/from");
@@ -88,7 +104,7 @@ public class AddAction extends Action {
             String to = formatData("/to ", "");
             LocalDateTime fromDate = Parser.parseDate(from);
             LocalDateTime toDate = Parser.parseDate(to);
-            newItem = new Event(description, fromDate, toDate);
+            newItem = new Event(description, fromDate, toDate, tags);
             break;
         default:
             break;

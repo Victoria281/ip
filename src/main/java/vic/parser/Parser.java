@@ -12,12 +12,17 @@ import vic.actions.DeleteAction;
 import vic.actions.FindAction;
 import vic.actions.ListAction;
 import vic.actions.MarkAction;
+import vic.actions.TagAction;
 import vic.enums.Command;
 import vic.exceptions.TaskOutOfBoundsException;
 import vic.exceptions.UnknownCommandException;
 import vic.storage.Storage;
+import vic.tag.Tag;
 import vic.tasks.TaskList;
 import vic.ui.Ui;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -67,6 +72,10 @@ public class Parser {
             return new ListAction(storage, taskList, action);
         case FIND:
             return new FindAction(storage, taskList, action);
+        case TAG:
+            return new TagAction(storage, taskList, action, true);
+        case UNTAG:
+            return new TagAction(storage, taskList, action, false);
         case BYE:
             return new ByeAction(storage, taskList, action);
         default:
@@ -118,4 +127,26 @@ public class Parser {
         }
         return taskID;
     }
+
+    /**
+     * Parses tags from a line given in storage file
+     *
+     * @param contents The split line array from storage
+     * @param index The index where the tags is located
+     * @return A ArrayList of tags extracted
+     */
+    public static ArrayList<Tag> parseTagsInStorage(String[] contents, int index) {
+        ArrayList<Tag> tags = new ArrayList<>();
+
+        if (index < contents.length && !contents[index].isEmpty()) {
+            String[] tagNames = contents[index].split(",");
+            for (String tagName : tagNames) {
+                tags.add(new Tag(tagName.trim()));
+            }
+        }
+
+        return tags;
+    }
+
+
 }
