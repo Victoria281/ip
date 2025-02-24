@@ -1,15 +1,21 @@
 package vic.tasks;
 
+import vic.tag.Tag;
+
+import java.util.ArrayList;
+
 /**
  * Represents a To-Do task.
  */
 public class ToDo extends Task {
 
+    protected ArrayList<Tag> tags;
+
     /**
      * Constructor for class
      */
-    public ToDo(String description) {
-        super(description);
+    public ToDo(String description, ArrayList<Tag> tags) {
+        super(description, tags);
     }
 
     /**

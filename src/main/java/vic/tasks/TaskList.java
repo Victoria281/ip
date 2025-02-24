@@ -1,5 +1,7 @@
 package vic.tasks;
 
+import vic.tag.Tag;
+
 import java.util.ArrayList;
 
 /**
@@ -68,5 +70,44 @@ public class TaskList {
      */
     public Task removeTask(int index) {
         return tasks.remove(index);
+    }
+
+    /**
+     * Retrieves all tasks that have a specific tag.
+     *
+     * @param tag The tag to filter tasks by.
+     * @return A list of tasks that contain the given tag.
+     */
+    public ArrayList<Task> getTasksByTag(Tag tag) {
+        ArrayList<Task> taggedTasks = new ArrayList<>();
+        for (Task task : tasks) {
+            if (task.getTags().contains(tag)) {
+                taggedTasks.add(task);
+            }
+        }
+        return taggedTasks;
+    }
+
+    /**
+     * Finds a task with a specific tag and adds it if not already added.
+     *
+     * @param task The task to modify
+     * @param tag  The tag to find and add to the task
+     */
+    public void findAndAddTagToTask(Task task, Tag tag) {
+        if (!task.getTags().contains(tag)) {
+            task.addTag(tag);
+        }
+    }
+
+    /**
+     * Removes a specific tag from all tasks in the list.
+     *
+     * @param tag The tag to remove from tasks.
+     */
+    public void removeTagFromAllTasks(Tag tag) {
+        for (Task task : tasks) {
+            task.removeTag(tag);
+        }
     }
 }
