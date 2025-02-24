@@ -46,6 +46,9 @@ public class AddAction extends Action {
         if (parts.length < 2 || parts[1].trim().isEmpty()) {
             throw new EmptyContentException();
         }
+        if (splitByEnd.isEmpty()) {
+            return parts[1];
+        }
         String[] subParts = parts[1].split(splitByEnd);
         if (subParts.length < 1 || subParts[0].trim().isEmpty()) {
             throw new EmptyContentException();
@@ -94,14 +97,14 @@ public class AddAction extends Action {
             break;
         case DEADLINE:
             description = formatData(" ", "/by");
-            String by = formatData("/by ", "");
+            String by = formatData("/by ", "-t");
             LocalDateTime byDate = Parser.parseDate(by);
             newItem = new Deadline(description, byDate, tags);
             break;
         case EVENT:
             description = formatData(" ", "/from");
             String from = formatData("/from ", "/to");
-            String to = formatData("/to ", "");
+            String to = formatData("/to ", "-t");
             LocalDateTime fromDate = Parser.parseDate(from);
             LocalDateTime toDate = Parser.parseDate(to);
             newItem = new Event(description, fromDate, toDate, tags);
