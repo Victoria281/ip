@@ -1,8 +1,10 @@
 package vic.tasks;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 import vic.parser.Parser;
+import vic.tag.Tag;
 
 /**
  * Represents an Event task.
@@ -11,12 +13,13 @@ public class Event extends Task {
 
     protected LocalDateTime from;
     protected LocalDateTime to;
+    protected ArrayList<Tag> tags;
 
     /**
      * Constructor for class
      */
-    public Event(String description, LocalDateTime from, LocalDateTime to) {
-        super(description);
+    public Event(String description, LocalDateTime from, LocalDateTime to, ArrayList<Tag> tags) {
+        super(description, tags);
         this.from = from;
         this.to = to;
     }

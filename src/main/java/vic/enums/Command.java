@@ -13,6 +13,8 @@ public enum Command {
     LIST("list"),
     FIND("find"),
     DELETE("delete"),
+    TAG("tag"),
+    UNTAG("untag"),
     NONE("none");
 
     private final String commandText;

@@ -1,8 +1,10 @@
 package vic.tasks;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 import vic.parser.Parser;
+import vic.tag.Tag;
 
 /**
  * Represents a Deadline task.
@@ -10,12 +12,13 @@ import vic.parser.Parser;
 public class Deadline extends Task {
 
     protected LocalDateTime by;
+    protected ArrayList<Tag> tags;
 
     /**
      * Constructor for class
      */
-    public Deadline(String description, LocalDateTime by) {
-        super(description);
+    public Deadline(String description, LocalDateTime by, ArrayList<Tag> tags) {
+        super(description, tags);
         this.by = by;
     }
 

@@ -31,7 +31,7 @@ public class Ui {
      */
     public static String getAddMsg(Task newItem, TaskList taskList) {
         return "Got it. I've added this task:\n"
-                        + "\t\t\t" + newItem.toString()
+                        + "\t" + newItem.toString()
                         + "\n\t Now you have "
                         + taskList.getTasks().size()
                         + " tasks in the list.";
@@ -44,7 +44,7 @@ public class Ui {
      * @param removedTask  The task that was removed
      */
     public static String getRemoveMsg(int size, String removedTask) {
-        String removeMsg = "Noted. I've removed this task:\n\t\t\t"
+        String removeMsg = "Noted. I've removed this task:\n\t"
                 + removedTask;
         return removeMsg
                 + "\n\t Now you have "
@@ -61,10 +61,10 @@ public class Ui {
      */
     public static String getMarkAndUnmarkMsg(int taskID, TaskList taskList, boolean isDone) {
         if (isDone) {
-            return "Nice! I've marked this task as done:\n\t\t\t"
+            return "Nice! I've marked this task as done:\n\t"
                     + taskList.getTask(taskID).toString();
         } else {
-            return "OK, I've marked this task as not done yet:\n\t\t\t"
+            return "OK, I've marked this task as not done yet:\n\t"
                     + taskList.getTask(taskID).toString();
         }
     }
@@ -78,7 +78,7 @@ public class Ui {
         String message = "";
         message += "Here are the matching tasks in your list:\t\n";
         for (int i = 0; i < matchedTasks.size(); i++) {
-            message += ("\t " + (i + 1) + "." + matchedTasks.get(i).toString() + "\n");
+            message += ("  " + (i + 1) + "." + matchedTasks.get(i).toString() + "\n");
         }
         return message;
     }
@@ -92,7 +92,7 @@ public class Ui {
         String message = "";
         message += "Here are the tasks in your list:\n";
         for (int i = 0; i < taskList.getTasks().size(); i++) {
-            message += ("\t " + (i + 1) + ". " + taskList.getTasks().get(i).toString() + "\n");
+            message += ("  " + (i + 1) + ". " + taskList.getTasks().get(i).toString() + "\n");
         }
         return message;
     }
